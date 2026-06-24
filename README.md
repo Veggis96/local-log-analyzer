@@ -4,6 +4,7 @@ A beginner Python cybersecurity project that reads a text log file and reports s
 
 ## Live Demo
 
+- [Open the project landing page](https://veggis96.github.io/local-log-analyzer/)
 - [Open the browser app](https://veggis96.github.io/local-log-analyzer/app.html)
 - [View the generated dashboard](https://veggis96.github.io/local-log-analyzer/dashboard.html)
 

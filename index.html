@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Local Log Analyzer</title>
+    <style>
+        body {
+            background: #f4f6f8;
+            color: #1f2937;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        main {
+            margin: 0 auto;
+            max-width: 860px;
+            padding: 48px 24px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin: 0 0 10px 0;
+        }
+
+        p {
+            color: #667085;
+            font-size: 18px;
+            line-height: 1.5;
+            margin: 0 0 24px 0;
+        }
+
+        .links {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        a {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            color: #344054;
+            display: block;
+            font-weight: 700;
+            padding: 18px;
+            text-decoration: none;
+        }
+
+        a:hover {
+            background: #f2f4f7;
+        }
+
+        span {
+            color: #667085;
+            display: block;
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Local Log Analyzer</h1>
+        <p>A beginner cybersecurity portfolio project for analyzing login and network activity from sample log files.</p>
+        <div class="links">
+            <a href="app.html">Open Browser App<span>Interactive Mini SIEM-style log analyzer</span></a>
+            <a href="dashboard.html">View Dashboard<span>Generated HTML report from the Python analyzer</span></a>
+            <a href="demo_summary.html">View Demo Summary<span>Scenario overview for brute force, port scan, account takeover, and clean baseline logs</span></a>
+            <a href="https://github.com/Veggis96/local-log-analyzer">View Source on GitHub<span>Python code, tests, documentation, and sample logs</span></a>
+        </div>
+    </main>
+</body>
+</html>
