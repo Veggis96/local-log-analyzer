@@ -55,6 +55,7 @@ The failed login alert threshold is currently set to 3.
 - `run_demo.py` - runs all demo scenarios and prints a summary table
 - `PROJECT_NOTES.md` - portfolio notes and interview talking points
 - `PORTFOLIO.md` - polished project summary for GitHub, applications, and interviews
+- `INTERVIEW_DEMO_SCRIPT.md` - short script for presenting the project in interviews
 - `INVESTIGATION_GUIDE.md` - beginner analyst questions for reviewing alerts
 - `SAMPLE_INVESTIGATION_REPORT.md` - example analyst report for a suspicious login scenario
 - `RULES.md` - standalone detection rule documentation
@@ -326,6 +327,7 @@ This project demonstrates:
 - `CHANGELOG.md` shows how the project grew from a small MVP into a broader portfolio project.
 - `screenshots/README.md` lists dashboard screenshots to capture for GitHub or a portfolio page.
 - `PORTFOLIO.md` gives a concise project pitch, demo flow, skills list, and interview explanation.
+- `INTERVIEW_DEMO_SCRIPT.md` gives a short pitch, live demo flow, and common interview answers.
 
 ## Limitations
 
