@@ -22,6 +22,27 @@ This project is released under the [MIT License](LICENSE).
 
 ![Generated dashboard showing high risk alert summary](screenshots/dashboard-overview.png)
 
+## Architecture
+
+```mermaid
+flowchart LR
+    A["Sample log files"] --> B["Python analyzer"]
+    A --> C["Browser app"]
+    B --> D["Terminal report"]
+    B --> E["report.txt / alerts.csv / summary.json"]
+    B --> F["dashboard.html"]
+    C --> G["Alerts and risk score"]
+    C --> H["IOC summary and timeline"]
+    C --> I["Saved cases and remediation suggestions"]
+```
+
+Data flow:
+
+- Sample logs are read from local `.txt` or `.log` files.
+- The Python analyzer parses events, applies detection rules, and creates reports.
+- The browser app analyzes pasted or uploaded logs locally in the browser.
+- Alerts are turned into IOC summaries, timelines, analyst questions, case evidence, and remediation suggestions.
+
 ## What It Detects
 
 - 3 or more failed login attempts from the same user
