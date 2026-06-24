@@ -2,6 +2,11 @@
 
 A beginner Python cybersecurity project that reads a text log file and reports suspicious activity.
 
+## Live Demo
+
+- [Open the browser app](https://veggis96.github.io/local-log-analyzer/app.html)
+- [View the generated dashboard](https://veggis96.github.io/local-log-analyzer/dashboard.html)
+
 ## Screenshots
 
 ### Browser Mini SIEM App
