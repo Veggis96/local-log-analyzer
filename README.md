@@ -2,6 +2,16 @@
 
 A beginner Python cybersecurity project that reads a text log file and reports suspicious activity.
 
+## Screenshots
+
+### Browser Mini SIEM App
+
+![Browser Mini SIEM app showing the account takeover demo](screenshots/app-full.png)
+
+### Generated Dashboard
+
+![Generated dashboard showing high risk alert summary](screenshots/dashboard-overview.png)
+
 ## What It Detects
 
 - 3 or more failed login attempts from the same user
