@@ -1,0 +1,5 @@
+scenario,file,alerts,risk_score,risk_level,failed_login,port_scan,account_locked,success_after_failure,success_from_new_ip
+account_takeover,scenario_account_takeover.txt,3,8,HIGH,1,0,0,1,1
+brute_force,scenario_brute_force.txt,2,6,HIGH,1,0,1,0,0
+clean_baseline,scenario_clean_baseline.txt,0,0,LOW,0,0,0,0,0
+port_scan,scenario_port_scan.txt,4,8,HIGH,0,4,0,0,0

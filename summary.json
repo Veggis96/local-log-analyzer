@@ -1,0 +1,16 @@
+{
+    "log_file": "suspicious_log.txt",
+    "total_files_analyzed": 1,
+    "total_lines_analyzed": 14,
+    "first_timestamp": "2026-06-13 09:00:01",
+    "last_timestamp": "2026-06-13 09:25:30",
+    "min_severity": "LOW",
+    "total_alerts": 9,
+    "failed_login_alerts": 2,
+    "port_scan_alerts": 3,
+    "account_locked_alerts": 1,
+    "success_after_failure_alerts": 2,
+    "success_from_new_ip_alerts": 1,
+    "risk_score": 22,
+    "risk_level": "HIGH"
+}

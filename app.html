@@ -1,0 +1,1960 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Local Log Analyzer App</title>
+    <style>
+        :root {
+            --bg: #f4f6f8;
+            --panel: #ffffff;
+            --border: #d0d5dd;
+            --border-soft: #eaecf0;
+            --text: #1f2937;
+            --muted: #667085;
+            --ink: #344054;
+            --high: #b42318;
+            --medium: #b54708;
+            --low: #027a48;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        header {
+            background: var(--panel);
+            border-bottom: 1px solid var(--border);
+            padding: 22px 32px;
+        }
+
+        main {
+            padding: 22px 32px 32px 32px;
+        }
+
+        h1, h2 {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 28px;
+        }
+
+        h2 {
+            font-size: 18px;
+        }
+
+        section {
+            margin-top: 18px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin-top: 8px;
+        }
+
+        .header-row {
+            align-items: center;
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+        }
+
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .workspace {
+            display: grid;
+            gap: 18px;
+            grid-template-columns: minmax(300px, 430px) 1fr;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .input-panel {
+            position: sticky;
+            top: 16px;
+        }
+
+        .section-header {
+            align-items: center;
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            color: var(--ink);
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.45;
+            min-height: 330px;
+            padding: 12px;
+            resize: vertical;
+            width: 100%;
+        }
+
+        input[type="number"], input[type="file"] {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            color: var(--ink);
+            margin-top: 8px;
+            padding: 8px 10px;
+            width: 100%;
+        }
+
+        button {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--ink);
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0;
+            padding: 8px 12px;
+        }
+
+        button:hover {
+            background: #f2f4f7;
+        }
+
+        .primary-button {
+            background: var(--ink);
+            color: #ffffff;
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .scenario-grid {
+            display: grid;
+            gap: 8px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 8px;
+        }
+
+        .scenario-button {
+            text-align: left;
+        }
+
+        .scenario-button.active {
+            background: #344054;
+            border-color: #344054;
+            color: #ffffff;
+        }
+
+        .scenario-button span {
+            display: block;
+            font-size: 12px;
+            font-weight: normal;
+            margin-top: 3px;
+            opacity: 0.82;
+        }
+
+        .grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        }
+
+        .metric {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .ioc-value {
+            color: var(--ink);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-top: 8px;
+            word-break: break-word;
+        }
+
+        .label {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .risk-high {
+            color: var(--high);
+        }
+
+        .risk-medium {
+            color: var(--medium);
+        }
+
+        .risk-low {
+            color: var(--low);
+        }
+
+        .risk-banner {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-left: 6px solid var(--low);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .risk-banner.high {
+            border-left-color: var(--high);
+        }
+
+        .risk-banner.medium {
+            border-left-color: var(--medium);
+        }
+
+        .risk-banner.low {
+            border-left-color: var(--low);
+        }
+
+        .risk-title {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .risk-message {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .table-wrap {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        table {
+            background: var(--panel);
+            border: 0;
+            border-collapse: collapse;
+            min-width: 720px;
+            width: 100%;
+        }
+
+        .event-filters {
+            align-items: end;
+            display: grid;
+            gap: 10px;
+            grid-template-columns: 1fr minmax(180px, 220px);
+            margin-bottom: 10px;
+        }
+
+        .saved-query-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0 0 10px 0;
+        }
+
+        .event-filters input, .event-filters select {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            color: var(--ink);
+            padding: 8px 10px;
+            width: 100%;
+        }
+
+        .case-form {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .case-form input, .case-form select, .case-form textarea {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            color: var(--ink);
+            padding: 8px 10px;
+            width: 100%;
+        }
+
+        .case-form textarea {
+            font-family: Arial, sans-serif;
+            grid-column: 1 / -1;
+            min-height: 76px;
+        }
+
+        .evidence-toolbar {
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .evidence-count {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .evidence-cell {
+            text-align: center;
+            width: 74px;
+        }
+
+        input[type="checkbox"] {
+            height: 16px;
+            width: 16px;
+        }
+
+        th, td {
+            border-bottom: 1px solid var(--border-soft);
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f2f4f7;
+            font-size: 14px;
+        }
+
+        .severity {
+            border-radius: 999px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+        }
+
+        .severity-high {
+            background: #fee4e2;
+            color: #b42318;
+        }
+
+        .severity-medium {
+            background: #fef0c7;
+            color: #b54708;
+        }
+
+        .severity-low {
+            background: #dcfae6;
+            color: #027a48;
+        }
+
+        .timeline {
+            display: grid;
+            gap: 10px;
+        }
+
+        .timeline-item {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--low);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+
+        .timeline-item.high {
+            border-left-color: var(--high);
+        }
+
+        .timeline-item.medium {
+            border-left-color: var(--medium);
+        }
+
+        .timeline-title {
+            font-weight: 700;
+        }
+
+        .timeline-meta {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .timeline-raw {
+            color: var(--ink);
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            margin-top: 8px;
+            word-break: break-word;
+        }
+
+        .note {
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .next-actions {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .action-item {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            line-height: 1.5;
+        }
+
+        .action-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .action-note {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .question-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .question-item {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            line-height: 1.5;
+            padding: 14px;
+        }
+
+        .question-item strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .status-pill {
+            border-radius: 999px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+        }
+
+        .status-high {
+            background: #fee4e2;
+            color: var(--high);
+        }
+
+        .status-low {
+            background: #dcfae6;
+            color: var(--low);
+        }
+
+        @media (max-width: 900px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .input-panel {
+                position: static;
+            }
+
+            .header-row {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .scenario-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .case-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-row">
+            <div>
+                <h1>Local Log Analyzer App</h1>
+                <div class="subtitle">Analyze suspicious login and network activity directly in your browser.</div>
+            </div>
+            <div class="header-actions">
+                <button onclick="loadScenario('account_takeover')">Load strongest demo</button>
+                <button onclick="downloadReport()">Download report</button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="workspace">
+            <div class="panel input-panel">
+                <div class="section-header">
+                    <h2>Log Input</h2>
+                    <span class="status-pill status-low">Local only</span>
+                </div>
+                <p class="note">This app runs locally in your browser. It does not upload logs anywhere.</p>
+                <input type="file" id="file-input" accept=".txt,.log">
+                <p class="label">Failed login threshold</p>
+                <input type="number" id="failed-limit" value="3" min="1">
+                <p class="label">Demo scenarios</p>
+                <div class="scenario-grid">
+                    <button class="scenario-button" data-scenario="account_takeover" onclick="loadScenario('account_takeover')">Account takeover<span>Failures, then success from new IP</span></button>
+                    <button class="scenario-button" data-scenario="brute_force" onclick="loadScenario('brute_force')">Brute force<span>Repeated failures and lockout</span></button>
+                    <button class="scenario-button" data-scenario="port_scan" onclick="loadScenario('port_scan')">Port scan<span>Source IP scans targets</span></button>
+                    <button class="scenario-button" data-scenario="clean_baseline" onclick="loadScenario('clean_baseline')">Clean baseline<span>Normal activity</span></button>
+                </div>
+                <p class="label">Log text</p>
+                <textarea id="log-input"></textarea>
+                <div class="button-row">
+                    <button class="primary-button" onclick="analyzeCurrentLog()">Analyze log</button>
+                    <button onclick="clearLog()">Clear</button>
+                    <button onclick="downloadReport()">Download report</button>
+                </div>
+            </div>
+
+            <div>
+                <section>
+                    <div class="risk-banner low" id="risk-banner">
+                        <div class="risk-title">Current assessment</div>
+                        <div class="risk-message" id="risk-message">No suspicious activity analyzed yet.</div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="grid">
+                        <div class="metric"><div class="label">Risk level</div><div class="value" id="risk-level">LOW</div></div>
+                        <div class="metric"><div class="label">Risk score</div><div class="value" id="risk-score">0</div></div>
+                        <div class="metric"><div class="label">Total alerts</div><div class="value" id="total-alerts">0</div></div>
+                        <div class="metric"><div class="label">Lines analyzed</div><div class="value" id="total-lines">0</div></div>
+                        <div class="metric"><div class="label">Normalized events</div><div class="value" id="total-events">0</div></div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="section-header">
+                        <h2>Summary</h2>
+                    </div>
+                    <div class="panel" id="summary-text">No log analyzed yet.</div>
+                </section>
+
+                <section>
+                    <div class="section-header">
+                        <h2>Data Source Coverage</h2>
+                    </div>
+                    <div class="grid">
+                        <div class="metric"><div class="label">Authentication events</div><div class="value" id="auth-events">0</div></div>
+                        <div class="metric"><div class="label">Network events</div><div class="value" id="network-events">0</div></div>
+                        <div class="metric"><div class="label">Unknown events</div><div class="value" id="unknown-events">0</div></div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="section-header">
+                        <h2>IOC Summary</h2>
+                    </div>
+                    <div class="grid">
+                        <div class="metric"><div class="label">Users</div><div class="ioc-value" id="ioc-users">None</div></div>
+                        <div class="metric"><div class="label">Source IPs</div><div class="ioc-value" id="ioc-source-ips">None</div></div>
+                        <div class="metric"><div class="label">Target IPs</div><div class="ioc-value" id="ioc-target-ips">None</div></div>
+                        <div class="metric"><div class="label">Event types</div><div class="ioc-value" id="ioc-event-types">None</div></div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="section-header">
+                        <h2>Incident Timeline</h2>
+                    </div>
+                    <div class="timeline" id="incident-timeline">
+                        <div class="timeline-item">Analyze a log to build an event timeline.</div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="section-header">
+                        <h2>Analyst Questions</h2>
+                    </div>
+                    <div class="question-list" id="analyst-questions">
+                        <div class="question-item">Analyze a log to see investigation questions.</div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="section-header">
+                        <h2>Alerts</h2>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>Evidence</th><th>Severity</th><th>Type</th><th>Source</th><th>Details</th><th>MITRE ATT&CK</th><th>Meaning</th></tr>
+                            </thead>
+                            <tbody id="alerts-table">
+                                <tr><td colspan="7">No alerts found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="section-header">
+                        <h2>Correlation Rules</h2>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>Severity</th><th>Rule</th><th>Evidence</th><th>Analyst explanation</th><th>Suggested next step</th></tr>
+                            </thead>
+                            <tbody id="correlations-table">
+                                <tr><td colspan="5">No correlations found yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="section-header">
+                        <h2>Normalized Events</h2>
+                    </div>
+                    <div class="panel">
+                        <div class="saved-query-row">
+                            <button onclick="runSavedQuery('all')">All events</button>
+                            <button onclick="runSavedQuery('failed_logins')">Failed logins</button>
+                            <button onclick="runSavedQuery('successful_logins')">Successful logins</button>
+                            <button onclick="runSavedQuery('port_scans')">Port scans</button>
+                            <button onclick="runSavedQuery('external_examples')">External/example IPs</button>
+                            <button onclick="runSavedQuery('authentication')">Authentication source</button>
+                            <button onclick="runSavedQuery('network')">Network source</button>
+                        </div>
+                        <div class="event-filters">
+                            <div>
+                                <div class="label">Search events</div>
+                                <input id="event-search" type="search" placeholder="Search user, IP, event type, host, or raw log" oninput="renderEventTable()">
+                            </div>
+                            <div>
+                                <div class="label">Event type</div>
+                                <select id="event-type-filter" onchange="renderEventTable()">
+                                    <option value="ALL">All event types</option>
+                                    <option value="LOGIN_FAILED">LOGIN_FAILED</option>
+                                    <option value="LOGIN_SUCCESS">LOGIN_SUCCESS</option>
+                                    <option value="PORT_SCAN">PORT_SCAN</option>
+                                    <option value="ACCOUNT_LOCKED">ACCOUNT_LOCKED</option>
+                                    <option value="UNKNOWN">UNKNOWN</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr><th>Evidence</th><th>Time</th><th>Event type</th><th>User</th><th>Source IP</th><th>IP type</th><th>Target IP</th><th>Data source</th><th>Raw log</th></tr>
+                                </thead>
+                                <tbody id="events-table">
+                                    <tr><td colspan="9">No events parsed yet.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="section-header">
+                        <h2>Remediation Suggestions</h2>
+                    </div>
+                    <div class="next-actions" id="next-actions">
+                        <div class="action-item">Analyze a log to see remediation suggestions.</div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="section-header">
+                        <h2>Saved Cases</h2>
+                        <button onclick="createCaseFromCurrentAlerts()">Create case from current alerts</button>
+                    </div>
+                    <div class="panel">
+                        <div class="evidence-toolbar">
+                            <div class="evidence-count">Selected evidence: <span id="selected-evidence-count">0</span></div>
+                            <div class="button-row" style="margin-top: 0;">
+                                <button onclick="selectAllAlertEvidence()">Select all alerts</button>
+                                <button onclick="clearEvidenceSelection()">Clear evidence selection</button>
+                            </div>
+                        </div>
+                        <div class="case-form">
+                            <div>
+                                <div class="label">Case title</div>
+                                <input id="case-title" type="text" value="Suspicious login investigation">
+                            </div>
+                            <div>
+                                <div class="label">Severity</div>
+                                <select id="case-severity">
+                                    <option>HIGH</option>
+                                    <option>MEDIUM</option>
+                                    <option>LOW</option>
+                                </select>
+                            </div>
+                            <div>
+                                <div class="label">Status</div>
+                                <select id="case-status">
+                                    <option>Open</option>
+                                    <option>Investigating</option>
+                                    <option>Closed</option>
+                                </select>
+                            </div>
+                            <textarea id="case-note" placeholder="Analyst note">Review high severity alerts, validate affected users and source IPs, and document the outcome.</textarea>
+                        </div>
+                        <div class="button-row">
+                            <button onclick="clearCases()">Clear saved cases</button>
+                        </div>
+                    </div>
+                    <div class="table-wrap" style="margin-top: 10px;">
+                        <table>
+                            <thead>
+                                <tr><th>Created</th><th>Title</th><th>Severity</th><th>Status</th><th>Alerts</th><th>Events</th><th>Risk</th><th>Note</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="cases-table">
+                                <tr><td colspan="9">No cases saved yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="section-header">
+                        <h2>Firewall Review</h2>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>Source IP</th><th>IP type</th><th>Events</th><th>Practice decision</th></tr>
+                            </thead>
+                            <tbody id="firewall-table">
+                                <tr><td colspan="4">No port scan source IPs found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Learning Notes</h2>
+                    <div class="panel note">
+                        <strong>Mini SIEM:</strong> raw log lines are normalized into searchable events with timestamp, event type, user, IP, and data source.<br>
+                        <strong>OWASP:</strong> repeated login failures connect to authentication and access-control concepts.<br>
+                        <strong>MITRE ATT&CK:</strong> failed logins map to Brute Force, and suspicious successful logins map to Valid Accounts.<br>
+                        <strong>Firewall thinking:</strong> port scans should be reviewed by source IP before any allow or block decision.<br>
+                        <strong>Cryptography:</strong> logs should not contain plaintext passwords; real systems should use strong hashing and encryption.
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const scenarios = {
+            account_takeover: `2026-06-14 10:00:01 LOGIN_SUCCESS user=maria ip=192.168.1.30
+2026-06-14 10:15:02 LOGIN_FAILED user=maria ip=203.0.113.90
+2026-06-14 10:15:11 LOGIN_FAILED user=maria ip=203.0.113.90
+2026-06-14 10:15:20 LOGIN_FAILED user=maria ip=203.0.113.90
+2026-06-14 10:16:04 LOGIN_SUCCESS user=maria ip=198.51.100.91`,
+            brute_force: `2026-06-14 08:00:01 LOGIN_SUCCESS user=service ip=192.168.1.20
+2026-06-14 08:10:05 LOGIN_FAILED user=admin ip=203.0.113.44
+2026-06-14 08:10:12 LOGIN_FAILED user=admin ip=203.0.113.44
+2026-06-14 08:10:19 LOGIN_FAILED user=admin ip=203.0.113.44
+2026-06-14 08:11:03 ACCOUNT_LOCKED user=admin ip=203.0.113.44`,
+            port_scan: `2026-06-14 09:00:01 LOGIN_SUCCESS user=analyst ip=192.168.1.25
+2026-06-14 09:05:10 PORT_SCAN source_ip=198.51.100.80 target_ip=192.168.1.10
+2026-06-14 09:05:11 PORT_SCAN source_ip=198.51.100.80 target_ip=192.168.1.11
+2026-06-14 09:05:12 PORT_SCAN source_ip=198.51.100.80 target_ip=192.168.1.12
+2026-06-14 09:05:13 PORT_SCAN source_ip=198.51.100.80 target_ip=192.168.1.13`,
+            clean_baseline: `2026-06-14 11:00:01 LOGIN_SUCCESS user=alice ip=192.168.1.21
+2026-06-14 11:05:10 LOGIN_SUCCESS user=bob ip=192.168.1.22
+2026-06-14 11:10:20 LOGIN_FAILED user=charlie ip=192.168.1.23
+2026-06-14 11:15:30 LOGIN_SUCCESS user=charlie ip=192.168.1.23`
+        };
+
+        let lastReportText = "";
+        let currentEvents = [];
+        let currentResult = null;
+        let currentRisk = { score: 0, level: "LOW" };
+        let currentCorrelations = [];
+        let selectedAlertEvidence = new Set();
+        let selectedEventEvidence = new Set();
+
+        function getField(line, fieldName) {
+            const parts = line.split(/\s+/);
+            const prefix = fieldName + "=";
+
+            for (const part of parts) {
+                if (part.startsWith(prefix)) {
+                    return part.replace(prefix, "");
+                }
+            }
+
+            return "";
+        }
+
+        function getTimestamp(line) {
+            const parts = line.split(/\s+/);
+
+            if (parts.length >= 2) {
+                return parts[0] + " " + parts[1];
+            }
+
+            return "";
+        }
+
+        function getIpParts(ip) {
+            const parts = ip.split(".").map(Number);
+
+            if (parts.length !== 4 || parts.some(part => Number.isNaN(part) || part < 0 || part > 255)) {
+                return [];
+            }
+
+            return parts;
+        }
+
+        function classifyIp(ip) {
+            if (!ip) {
+                return "Unknown";
+            }
+
+            const parts = getIpParts(ip);
+
+            if (parts.length === 0) {
+                return "Unknown";
+            }
+
+            if ((parts[0] === 192 && parts[1] === 0 && parts[2] === 2)
+                || (parts[0] === 198 && parts[1] === 51 && parts[2] === 100)
+                || (parts[0] === 203 && parts[1] === 0 && parts[2] === 113)) {
+                return "External test/example";
+            }
+
+            if (parts[0] === 10
+                || (parts[0] === 192 && parts[1] === 168)
+                || (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31)) {
+                return "Internal";
+            }
+
+            return "External/Unknown";
+        }
+
+        function getMitre(alertType) {
+            const mappings = {
+                FAILED_LOGIN: "T1110 - Brute Force",
+                PORT_SCAN: "T1046 - Network Service Discovery",
+                ACCOUNT_LOCKED: "T1110 - Brute Force",
+                SUCCESS_AFTER_FAILURE: "T1078 - Valid Accounts",
+                SUCCESS_FROM_NEW_IP: "T1078 - Valid Accounts"
+            };
+
+            return mappings[alertType] || "N/A";
+        }
+
+        function getMeaning(alertType) {
+            const meanings = {
+                FAILED_LOGIN: "A user failed to log in several times.",
+                PORT_SCAN: "A source checked for open network ports.",
+                ACCOUNT_LOCKED: "An account was locked after suspicious login behavior.",
+                SUCCESS_AFTER_FAILURE: "A login succeeded after repeated failures.",
+                SUCCESS_FROM_NEW_IP: "A login succeeded from a new IP after repeated failures."
+            };
+
+            return meanings[alertType] || "Review this alert.";
+        }
+
+        function getEventType(line) {
+            if (line.includes("LOGIN_FAILED")) {
+                return "LOGIN_FAILED";
+            }
+
+            if (line.includes("LOGIN_SUCCESS")) {
+                return "LOGIN_SUCCESS";
+            }
+
+            if (line.includes("PORT_SCAN")) {
+                return "PORT_SCAN";
+            }
+
+            if (line.includes("ACCOUNT_LOCKED")) {
+                return "ACCOUNT_LOCKED";
+            }
+
+            return "UNKNOWN";
+        }
+
+        function getDataSource(eventType) {
+            if (eventType === "PORT_SCAN") {
+                return "network";
+            }
+
+            if (eventType === "UNKNOWN") {
+                return "unknown";
+            }
+
+            return "authentication";
+        }
+
+        function normalizeEvent(line, lineNumber) {
+            const eventType = getEventType(line);
+            const sourceIp = eventType === "PORT_SCAN" ? getField(line, "source_ip") : getField(line, "ip");
+
+            return {
+                lineNumber,
+                timestamp: getTimestamp(line),
+                eventType,
+                user: getField(line, "user"),
+                sourceIp,
+                sourceIpType: classifyIp(sourceIp),
+                targetIp: getField(line, "target_ip"),
+                host: getField(line, "host"),
+                dataSource: getDataSource(eventType),
+                raw: line
+            };
+        }
+
+        function analyzeLogText(logText, failedLimit) {
+            const lines = logText.split(/\r?\n/).filter(line => line.trim() !== "");
+            const failedCounts = {};
+            const failedLines = {};
+            const runningFailed = {};
+            const runningFailedIps = {};
+            const portScanIps = {};
+            const events = [];
+            const alerts = [];
+            let firstTimestamp = "";
+            let lastTimestamp = "";
+
+            lines.forEach(function(line, index) {
+                const lineNumber = index + 1;
+                const timestamp = getTimestamp(line);
+                events.push(normalizeEvent(line, lineNumber));
+
+                if (timestamp) {
+                    if (!firstTimestamp || timestamp < firstTimestamp) {
+                        firstTimestamp = timestamp;
+                    }
+
+                    if (!lastTimestamp || timestamp > lastTimestamp) {
+                        lastTimestamp = timestamp;
+                    }
+                }
+
+                if (line.includes("LOGIN_FAILED")) {
+                    const user = getField(line, "user");
+                    const ip = getField(line, "ip");
+
+                    if (user) {
+                        failedCounts[user] = (failedCounts[user] || 0) + 1;
+                        failedLines[user] = failedLines[user] || [];
+                        failedLines[user].push(lineNumber);
+                        runningFailed[user] = (runningFailed[user] || 0) + 1;
+                        runningFailedIps[user] = runningFailedIps[user] || [];
+
+                        if (ip && !runningFailedIps[user].includes(ip)) {
+                            runningFailedIps[user].push(ip);
+                        }
+                    }
+                }
+
+                if (line.includes("LOGIN_SUCCESS")) {
+                    const user = getField(line, "user");
+                    const ip = getField(line, "ip");
+
+                    if (user && runningFailed[user] >= failedLimit) {
+                        alerts.push({
+                            severity: "MEDIUM",
+                            type: "SUCCESS_AFTER_FAILURE",
+                            source: String(lineNumber),
+                            details: line + " after " + runningFailed[user] + " failed login attempts"
+                        });
+
+                        if (ip && !runningFailedIps[user].includes(ip)) {
+                            alerts.push({
+                                severity: "HIGH",
+                                type: "SUCCESS_FROM_NEW_IP",
+                                source: String(lineNumber),
+                                details: line + " after failures from IP(s): " + runningFailedIps[user].join(", ") + " success_ip_type=" + classifyIp(ip)
+                            });
+                        }
+                    }
+                }
+
+                if (line.includes("PORT_SCAN")) {
+                    const sourceIp = getField(line, "source_ip");
+                    portScanIps[sourceIp] = (portScanIps[sourceIp] || 0) + 1;
+                    alerts.push({
+                        severity: "MEDIUM",
+                        type: "PORT_SCAN",
+                        source: String(lineNumber),
+                        details: line + " source_ip_type=" + classifyIp(sourceIp)
+                    });
+                }
+
+                if (line.includes("ACCOUNT_LOCKED")) {
+                    alerts.push({
+                        severity: "HIGH",
+                        type: "ACCOUNT_LOCKED",
+                        source: String(lineNumber),
+                        details: line
+                    });
+                }
+            });
+
+            Object.keys(failedCounts).sort().forEach(function(user) {
+                if (failedCounts[user] >= failedLimit) {
+                    alerts.unshift({
+                        severity: "HIGH",
+                        type: "FAILED_LOGIN",
+                        source: failedLines[user].join(", "),
+                        details: user + " has " + failedCounts[user] + " failed login attempts"
+                    });
+                }
+            });
+
+            return {
+                lines,
+                failedCounts,
+                portScanIps,
+                events,
+                alerts,
+                firstTimestamp,
+                lastTimestamp
+            };
+        }
+
+        function calculateRisk(alerts) {
+            let score = 0;
+
+            alerts.forEach(function(alert) {
+                if (alert.severity === "HIGH") {
+                    score += 3;
+                } else if (alert.severity === "MEDIUM") {
+                    score += 2;
+                }
+            });
+
+            if (score === 0) {
+                return { score, level: "LOW" };
+            }
+
+            if (score <= 4) {
+                return { score, level: "MEDIUM" };
+            }
+
+            return { score, level: "HIGH" };
+        }
+
+        function escapeHtml(text) {
+            return String(text)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;");
+        }
+
+        function renderResults(result) {
+            const risk = calculateRisk(result.alerts);
+            const riskElement = document.querySelector("#risk-level");
+            const riskBanner = document.querySelector("#risk-banner");
+            const riskMessage = document.querySelector("#risk-message");
+            const alertsTable = document.querySelector("#alerts-table");
+            const firewallTable = document.querySelector("#firewall-table");
+            const summaryText = document.querySelector("#summary-text");
+            const correlations = buildCorrelations(result, risk);
+            currentResult = result;
+            currentRisk = risk;
+            currentEvents = result.events;
+            currentCorrelations = correlations;
+            selectedAlertEvidence = new Set();
+            selectedEventEvidence = new Set();
+
+            riskElement.innerText = risk.level;
+            riskElement.className = "value risk-" + risk.level.toLowerCase();
+            riskBanner.className = "risk-banner " + risk.level.toLowerCase();
+            riskMessage.innerText = getRiskMessage(risk, result.alerts);
+            document.querySelector("#case-severity").value = risk.level;
+            document.querySelector("#risk-score").innerText = risk.score;
+            document.querySelector("#total-alerts").innerText = result.alerts.length;
+            document.querySelector("#total-lines").innerText = result.lines.length;
+            document.querySelector("#total-events").innerText = result.events.length;
+            document.querySelector("#auth-events").innerText = countDataSource(result.events, "authentication");
+            document.querySelector("#network-events").innerText = countDataSource(result.events, "network");
+            document.querySelector("#unknown-events").innerText = countDataSource(result.events, "unknown");
+            renderIocSummary(result.events);
+
+            summaryText.innerHTML = "First timestamp: " + escapeHtml(result.firstTimestamp || "None")
+                + "<br>Last timestamp: " + escapeHtml(result.lastTimestamp || "None")
+                + "<br>Failed login users: " + Object.keys(result.failedCounts).length
+                + "<br>Port scan source IPs: " + Object.keys(result.portScanIps).filter(Boolean).length
+                + "<br>Mini SIEM view: raw lines normalized into searchable event records";
+
+            if (result.alerts.length === 0) {
+                alertsTable.innerHTML = '<tr><td colspan="7">No alerts found.</td></tr>';
+            } else {
+                alertsTable.innerHTML = result.alerts.map(function(alert, index) {
+                    const severityClass = alert.severity === "HIGH" ? "severity-high" : "severity-medium";
+                    const checked = selectedAlertEvidence.has(index) ? " checked" : "";
+                    return "<tr>"
+                        + "<td class=\"evidence-cell\"><input type=\"checkbox\" aria-label=\"Select alert evidence\" onchange=\"toggleAlertEvidence(" + index + ", this.checked)\"" + checked + "></td>"
+                        + "<td><span class=\"severity " + severityClass + "\">" + escapeHtml(alert.severity) + "</span></td>"
+                        + "<td>" + escapeHtml(alert.type) + "</td>"
+                        + "<td>" + escapeHtml(alert.source) + "</td>"
+                        + "<td>" + escapeHtml(alert.details) + "</td>"
+                        + "<td>" + escapeHtml(getMitre(alert.type)) + "</td>"
+                        + "<td>" + escapeHtml(getMeaning(alert.type)) + "</td>"
+                        + "</tr>";
+                }).join("");
+            }
+
+            const sourceIps = Object.keys(result.portScanIps).filter(Boolean).sort();
+
+            if (sourceIps.length === 0) {
+                firewallTable.innerHTML = '<tr><td colspan="4">No port scan source IPs found.</td></tr>';
+            } else {
+                firewallTable.innerHTML = sourceIps.map(function(ip) {
+                    const count = result.portScanIps[ip];
+                    const decision = count >= 3 ? "Block request" : "Review";
+                    return "<tr><td>" + escapeHtml(ip) + "</td><td>" + escapeHtml(classifyIp(ip)) + "</td><td>" + count + "</td><td>" + decision + "</td></tr>";
+                }).join("");
+            }
+
+            renderEventTable();
+            renderTimeline(result.events);
+            renderAnalystQuestions(result, risk);
+            renderCorrelations(correlations);
+            renderNextActions(result.alerts, risk);
+            updateSelectedEvidenceCount();
+            lastReportText = buildReportText(result, risk);
+        }
+
+        function countEvents(events, eventType) {
+            return events.filter(function(event) {
+                return event.eventType === eventType;
+            }).length;
+        }
+
+        function countDataSource(events, dataSource) {
+            return events.filter(function(event) {
+                return event.dataSource === dataSource;
+            }).length;
+        }
+
+        function uniqueValues(events, fieldName) {
+            return Array.from(new Set(events.map(function(event) {
+                return event[fieldName];
+            }).filter(Boolean))).sort();
+        }
+
+        function formatIocList(values) {
+            if (values.length === 0) {
+                return "None";
+            }
+
+            if (values.length > 6) {
+                return values.slice(0, 6).join(", ") + " +" + (values.length - 6) + " more";
+            }
+
+            return values.join(", ");
+        }
+
+        function renderIocSummary(events) {
+            const users = uniqueValues(events, "user");
+            const sourceIps = uniqueValues(events, "sourceIp").map(function(ip) {
+                return ip + " (" + classifyIp(ip) + ")";
+            });
+            const targetIps = uniqueValues(events, "targetIp");
+            const eventTypes = uniqueValues(events, "eventType");
+
+            document.querySelector("#ioc-users").innerText = formatIocList(users);
+            document.querySelector("#ioc-source-ips").innerText = formatIocList(sourceIps);
+            document.querySelector("#ioc-target-ips").innerText = formatIocList(targetIps);
+            document.querySelector("#ioc-event-types").innerText = formatIocList(eventTypes);
+        }
+
+        function getEventSeverity(event) {
+            if (event.eventType === "ACCOUNT_LOCKED") {
+                return "HIGH";
+            }
+
+            if (event.eventType === "LOGIN_FAILED" || event.eventType === "PORT_SCAN") {
+                return "MEDIUM";
+            }
+
+            return "LOW";
+        }
+
+        function explainTimelineEvent(event) {
+            if (event.eventType === "LOGIN_FAILED") {
+                return "Failed login for " + (event.user || "unknown user") + " from " + (event.sourceIp || "unknown IP");
+            }
+
+            if (event.eventType === "LOGIN_SUCCESS") {
+                return "Successful login for " + (event.user || "unknown user") + " from " + (event.sourceIp || "unknown IP");
+            }
+
+            if (event.eventType === "PORT_SCAN") {
+                return "Port scan from " + (event.sourceIp || "unknown IP") + " toward " + (event.targetIp || "unknown target");
+            }
+
+            if (event.eventType === "ACCOUNT_LOCKED") {
+                return "Account lockout for " + (event.user || "unknown user");
+            }
+
+            return "Unrecognized log line";
+        }
+
+        function renderTimeline(events) {
+            const container = document.querySelector("#incident-timeline");
+
+            if (events.length === 0) {
+                container.innerHTML = '<div class="timeline-item">No events found yet.</div>';
+                return;
+            }
+
+            container.innerHTML = events.slice(0, 8).map(function(event) {
+                const severity = getEventSeverity(event);
+                const severityClass = severity === "HIGH" ? "severity-high" : severity === "MEDIUM" ? "severity-medium" : "severity-low";
+
+                return "<div class=\"timeline-item " + severity.toLowerCase() + "\">"
+                    + "<div><span class=\"severity " + severityClass + "\">" + severity + "</span></div>"
+                    + "<div class=\"timeline-title\">" + escapeHtml(explainTimelineEvent(event)) + "</div>"
+                    + "<div class=\"timeline-meta\">Line " + event.lineNumber
+                    + " | " + escapeHtml(event.timestamp || "No timestamp")
+                    + " | " + escapeHtml(event.dataSource)
+                    + " | " + escapeHtml(event.sourceIpType)
+                    + "</div>"
+                    + "<div class=\"timeline-raw\">" + escapeHtml(event.raw) + "</div>"
+                    + "</div>";
+            }).join("");
+        }
+
+        function buildAnalystQuestions(result, risk) {
+            const questions = [];
+            const users = Array.from(new Set(result.events.map(function(event) {
+                return event.user;
+            }).filter(Boolean))).sort();
+            const sourceIps = Array.from(new Set(result.events.map(function(event) {
+                return event.sourceIp;
+            }).filter(Boolean))).sort();
+            const externalIps = sourceIps.filter(function(ip) {
+                return classifyIp(ip) !== "Internal";
+            });
+
+            questions.push({
+                question: "What happened first?",
+                why: "Start with the first timeline event so the investigation has a clear beginning."
+            });
+
+            if (users.length > 0) {
+                questions.push({
+                    question: "Which user accounts are involved?",
+                    why: "Affected users: " + users.join(", ")
+                });
+            }
+
+            if (externalIps.length > 0) {
+                questions.push({
+                    question: "Are any source IPs external or unusual?",
+                    why: "External or example IPs found: " + externalIps.join(", ")
+                });
+            }
+
+            if (hasAlert(result.alerts, "FAILED_LOGIN")) {
+                questions.push({
+                    question: "Could this be brute force or repeated password mistakes?",
+                    why: "Repeated failed logins can be malicious, but false positives are possible."
+                });
+            }
+
+            if (hasAlert(result.alerts, "SUCCESS_FROM_NEW_IP") || hasAlert(result.alerts, "SUCCESS_AFTER_FAILURE")) {
+                questions.push({
+                    question: "Did a successful login happen after suspicious failures?",
+                    why: "This can indicate possible account takeover and should be validated with the user."
+                });
+            }
+
+            if (hasAlert(result.alerts, "PORT_SCAN")) {
+                questions.push({
+                    question: "Is the scanning source approved?",
+                    why: "Some port scans are normal vulnerability scanning, but unknown sources need review."
+                });
+            }
+
+            if (risk.level === "HIGH") {
+                questions.push({
+                    question: "Should this be escalated?",
+                    why: "High risk findings should be documented and reviewed quickly."
+                });
+            }
+
+            return questions.slice(0, 6);
+        }
+
+        function renderAnalystQuestions(result, risk) {
+            const container = document.querySelector("#analyst-questions");
+            const questions = buildAnalystQuestions(result, risk);
+
+            if (result.events.length === 0) {
+                container.innerHTML = '<div class="question-item">No investigation questions yet.</div>';
+                return;
+            }
+
+            container.innerHTML = questions.map(function(item) {
+                return "<div class=\"question-item\">"
+                    + "<strong>" + escapeHtml(item.question) + "</strong>"
+                    + escapeHtml(item.why)
+                    + "</div>";
+            }).join("");
+        }
+
+        function buildCorrelations(result, risk) {
+            const correlations = [];
+            const failedLoginCount = countEvents(result.events, "LOGIN_FAILED");
+            const successCount = countEvents(result.events, "LOGIN_SUCCESS");
+            const accountLockedCount = countEvents(result.events, "ACCOUNT_LOCKED");
+            const portScanCount = countEvents(result.events, "PORT_SCAN");
+            const portScanSources = Object.keys(result.portScanIps).filter(Boolean);
+
+            if (hasAlert(result.alerts, "SUCCESS_FROM_NEW_IP")) {
+                correlations.push({
+                    severity: "HIGH",
+                    rule: "Possible account takeover",
+                    evidence: "Failed logins followed by successful login from a new IP",
+                    explanation: "This combination may mean a password was guessed or the account was used from an unusual source.",
+                    nextStep: "Validate the login with the account owner and review MFA, VPN, and device context."
+                });
+            }
+
+            if (failedLoginCount >= 3 && accountLockedCount > 0) {
+                correlations.push({
+                    severity: "HIGH",
+                    rule: "Brute force with lockout",
+                    evidence: failedLoginCount + " failed login event(s) and " + accountLockedCount + " account lockout event(s)",
+                    explanation: "Repeated failures followed by lockout can indicate brute-force activity or repeated user password mistakes.",
+                    nextStep: "Confirm whether the lockout was expected and check the source IP."
+                });
+            }
+
+            portScanSources.forEach(function(sourceIp) {
+                const count = result.portScanIps[sourceIp];
+
+                if (count >= 3) {
+                    correlations.push({
+                        severity: "MEDIUM",
+                        rule: "Network reconnaissance",
+                        evidence: sourceIp + " generated " + count + " port scan event(s)",
+                        explanation: "Multiple port scan events from one source can indicate service discovery before an attack.",
+                        nextStep: "Confirm whether this source is an approved scanner before any block request."
+                    });
+                }
+            });
+
+            if (result.alerts.length === 0 && result.events.length > 0) {
+                correlations.push({
+                    severity: "LOW",
+                    rule: "Clean baseline",
+                    evidence: result.events.length + " normalized event(s), 0 alerts",
+                    explanation: "No suspicious threshold was reached in this log.",
+                    nextStep: "Save as a clean example or compare with suspicious scenarios."
+                });
+            }
+
+            if (failedLoginCount > 0 && successCount > 0 && !hasAlert(result.alerts, "SUCCESS_FROM_NEW_IP")) {
+                correlations.push({
+                    severity: "MEDIUM",
+                    rule: "Login recovery pattern",
+                    evidence: failedLoginCount + " failed login event(s) and " + successCount + " successful login event(s)",
+                    explanation: "Failures followed by success may be normal user behavior, but it should be reviewed if repeated.",
+                    nextStep: "Compare time, user, and source IP with expected activity."
+                });
+            }
+
+            return correlations;
+        }
+
+        function renderCorrelations(correlations) {
+            const table = document.querySelector("#correlations-table");
+
+            if (correlations.length === 0) {
+                table.innerHTML = '<tr><td colspan="5">No correlations found.</td></tr>';
+                return;
+            }
+
+            table.innerHTML = correlations.map(function(item) {
+                let severityClass = "severity-low";
+
+                if (item.severity === "HIGH") {
+                    severityClass = "severity-high";
+                } else if (item.severity === "MEDIUM") {
+                    severityClass = "severity-medium";
+                }
+
+                return "<tr>"
+                    + "<td><span class=\"severity " + severityClass + "\">" + escapeHtml(item.severity) + "</span></td>"
+                    + "<td>" + escapeHtml(item.rule) + "</td>"
+                    + "<td>" + escapeHtml(item.evidence) + "</td>"
+                    + "<td>" + escapeHtml(item.explanation) + "</td>"
+                    + "<td>" + escapeHtml(item.nextStep) + "</td>"
+                    + "</tr>";
+            }).join("");
+        }
+
+        function getCases() {
+            const savedCases = localStorage.getItem("mini-siem-cases");
+
+            if (!savedCases) {
+                return [];
+            }
+
+            return JSON.parse(savedCases);
+        }
+
+        function saveCases(cases) {
+            localStorage.setItem("mini-siem-cases", JSON.stringify(cases));
+        }
+
+        function createCaseFromCurrentAlerts() {
+            if (!currentResult) {
+                return;
+            }
+
+            const cases = getCases();
+            const hasManualEvidence = selectedAlertEvidence.size > 0 || selectedEventEvidence.size > 0;
+            const selectedAlerts = getSelectedAlerts(!hasManualEvidence);
+            const selectedEvents = getSelectedEvents();
+            const newCase = {
+                id: Date.now(),
+                created: new Date().toLocaleString(),
+                title: document.querySelector("#case-title").value || "Security investigation",
+                severity: document.querySelector("#case-severity").value,
+                status: document.querySelector("#case-status").value,
+                note: document.querySelector("#case-note").value,
+                alertCount: selectedAlerts.length,
+                eventCount: selectedEvents.length,
+                riskScore: currentRisk.score,
+                riskLevel: currentRisk.level,
+                correlations: currentCorrelations.map(function(item) {
+                    return item.severity + " " + item.rule + ": " + item.evidence;
+                }),
+                alerts: selectedAlerts.map(function(alert) {
+                    return alert.severity + " " + alert.type + " line(s) " + alert.source + ": " + alert.details;
+                }),
+                events: selectedEvents.map(function(event) {
+                    return "Line " + event.lineNumber + " " + event.eventType + " user=" + (event.user || "-")
+                        + " source_ip=" + (event.sourceIp || "-")
+                        + " target_ip=" + (event.targetIp || "-")
+                        + " data_source=" + event.dataSource
+                        + " raw=\"" + event.raw + "\"";
+                })
+            };
+
+            cases.unshift(newCase);
+            saveCases(cases.slice(0, 20));
+            renderCases();
+        }
+
+        function renderCases() {
+            const table = document.querySelector("#cases-table");
+            const cases = getCases();
+
+            if (cases.length === 0) {
+                table.innerHTML = '<tr><td colspan="9">No cases saved yet.</td></tr>';
+                return;
+            }
+
+            table.innerHTML = cases.map(function(item) {
+                const eventCount = item.eventCount || 0;
+                return "<tr>"
+                    + "<td>" + escapeHtml(item.created) + "</td>"
+                    + "<td>" + escapeHtml(item.title) + "</td>"
+                    + "<td>" + escapeHtml(item.severity) + "</td>"
+                    + "<td>" + escapeHtml(item.status) + "</td>"
+                    + "<td>" + item.alertCount + "</td>"
+                    + "<td>" + eventCount + "</td>"
+                    + "<td>" + escapeHtml(item.riskLevel) + " (" + item.riskScore + ")</td>"
+                    + "<td>" + escapeHtml(item.note) + "</td>"
+                    + "<td><button onclick=\"downloadCaseReport(" + item.id + ")\">Download</button></td>"
+                    + "</tr>";
+            }).join("");
+        }
+
+        function buildCaseReport(item) {
+            const lines = [];
+            lines.push("Mini SIEM Case Report");
+            lines.push("Created: " + item.created);
+            lines.push("Title: " + item.title);
+            lines.push("Severity: " + item.severity);
+            lines.push("Status: " + item.status);
+            lines.push("Risk: " + item.riskLevel + " (" + item.riskScore + ")");
+            lines.push("Alert count: " + item.alertCount);
+            lines.push("Selected event count: " + (item.eventCount || 0));
+            lines.push("");
+            lines.push("Analyst note:");
+            lines.push(item.note);
+            lines.push("");
+            lines.push("Correlations:");
+
+            if (!item.correlations || item.correlations.length === 0) {
+                lines.push("No correlations found.");
+            } else {
+                item.correlations.forEach(function(correlation) {
+                    lines.push("- " + correlation);
+                });
+            }
+
+            lines.push("");
+            lines.push("Alert evidence:");
+
+            if (item.alerts.length === 0) {
+                lines.push("No alerts found.");
+            } else {
+                item.alerts.forEach(function(alert) {
+                    lines.push("- " + alert);
+                });
+            }
+
+            lines.push("");
+            lines.push("Selected event evidence:");
+
+            if (!item.events || item.events.length === 0) {
+                lines.push("No event rows selected.");
+            } else {
+                item.events.forEach(function(event) {
+                    lines.push("- " + event);
+                });
+            }
+
+            return lines.join("\n");
+        }
+
+        function downloadCaseReport(caseId) {
+            const cases = getCases();
+            const item = cases.find(function(savedCase) {
+                return savedCase.id === caseId;
+            });
+
+            if (!item) {
+                return;
+            }
+
+            downloadText("case_report_" + item.id + ".txt", buildCaseReport(item));
+        }
+
+        function clearCases() {
+            localStorage.removeItem("mini-siem-cases");
+            renderCases();
+        }
+
+        function eventMatchesSearch(event, searchText) {
+            if (!searchText) {
+                return true;
+            }
+
+            const text = [
+                event.timestamp,
+                event.eventType,
+                event.user,
+                event.sourceIp,
+                event.sourceIpType,
+                event.targetIp,
+                event.host,
+                event.dataSource,
+                event.raw
+            ].join(" ").toLowerCase();
+
+            return text.includes(searchText.toLowerCase());
+        }
+
+        function renderEventTable() {
+            const table = document.querySelector("#events-table");
+            const searchText = document.querySelector("#event-search").value;
+            const typeFilter = document.querySelector("#event-type-filter").value;
+            const filteredEvents = currentEvents.filter(function(event) {
+                const matchesType = typeFilter === "ALL" || event.eventType === typeFilter;
+                return matchesType && eventMatchesSearch(event, searchText);
+            });
+
+            if (filteredEvents.length === 0) {
+                table.innerHTML = '<tr><td colspan="9">No matching events.</td></tr>';
+                return;
+            }
+
+            table.innerHTML = filteredEvents.map(function(event) {
+                const checked = selectedEventEvidence.has(event.lineNumber) ? " checked" : "";
+                return "<tr>"
+                    + "<td class=\"evidence-cell\"><input type=\"checkbox\" aria-label=\"Select event evidence\" onchange=\"toggleEventEvidence(" + event.lineNumber + ", this.checked)\"" + checked + "></td>"
+                    + "<td>" + escapeHtml(event.timestamp || "None") + "</td>"
+                    + "<td>" + escapeHtml(event.eventType) + "</td>"
+                    + "<td>" + escapeHtml(event.user || "-") + "</td>"
+                    + "<td>" + escapeHtml(event.sourceIp || "-") + "</td>"
+                    + "<td>" + escapeHtml(event.sourceIpType) + "</td>"
+                    + "<td>" + escapeHtml(event.targetIp || "-") + "</td>"
+                    + "<td>" + escapeHtml(event.dataSource) + "</td>"
+                    + "<td>" + escapeHtml(event.raw) + "</td>"
+                    + "</tr>";
+            }).join("");
+        }
+
+        function toggleAlertEvidence(index, checked) {
+            if (checked) {
+                selectedAlertEvidence.add(index);
+            } else {
+                selectedAlertEvidence.delete(index);
+            }
+
+            updateSelectedEvidenceCount();
+        }
+
+        function toggleEventEvidence(lineNumber, checked) {
+            if (checked) {
+                selectedEventEvidence.add(lineNumber);
+            } else {
+                selectedEventEvidence.delete(lineNumber);
+            }
+
+            updateSelectedEvidenceCount();
+        }
+
+        function getSelectedAlerts(useAllAlertsFallback) {
+            if (!currentResult) {
+                return [];
+            }
+
+            if (selectedAlertEvidence.size === 0 && useAllAlertsFallback) {
+                return currentResult.alerts;
+            }
+
+            return currentResult.alerts.filter(function(alert, index) {
+                return selectedAlertEvidence.has(index);
+            });
+        }
+
+        function getSelectedEvents() {
+            if (!currentResult) {
+                return [];
+            }
+
+            return currentResult.events.filter(function(event) {
+                return selectedEventEvidence.has(event.lineNumber);
+            });
+        }
+
+        function updateSelectedEvidenceCount() {
+            const countElement = document.querySelector("#selected-evidence-count");
+
+            if (!countElement) {
+                return;
+            }
+
+            countElement.innerText = selectedAlertEvidence.size + selectedEventEvidence.size;
+        }
+
+        function selectAllAlertEvidence() {
+            if (!currentResult) {
+                return;
+            }
+
+            selectedAlertEvidence = new Set(currentResult.alerts.map(function(alert, index) {
+                return index;
+            }));
+
+            document.querySelectorAll("#alerts-table input[type='checkbox']").forEach(function(checkbox) {
+                checkbox.checked = true;
+            });
+            updateSelectedEvidenceCount();
+        }
+
+        function clearEvidenceSelection() {
+            selectedAlertEvidence = new Set();
+            selectedEventEvidence = new Set();
+
+            document.querySelectorAll("#alerts-table input[type='checkbox']").forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+            renderEventTable();
+            updateSelectedEvidenceCount();
+        }
+
+        function runSavedQuery(queryName) {
+            const searchInput = document.querySelector("#event-search");
+            const typeFilter = document.querySelector("#event-type-filter");
+
+            searchInput.value = "";
+            typeFilter.value = "ALL";
+
+            if (queryName === "failed_logins") {
+                typeFilter.value = "LOGIN_FAILED";
+            } else if (queryName === "successful_logins") {
+                typeFilter.value = "LOGIN_SUCCESS";
+            } else if (queryName === "port_scans") {
+                typeFilter.value = "PORT_SCAN";
+            } else if (queryName === "external_examples") {
+                searchInput.value = "External test/example";
+            } else if (queryName === "authentication") {
+                searchInput.value = "authentication";
+            } else if (queryName === "network") {
+                searchInput.value = "network";
+            }
+
+            renderEventTable();
+        }
+
+        function getRiskMessage(risk, alerts) {
+            if (alerts.length === 0) {
+                return "No suspicious activity found in this log.";
+            }
+
+            if (risk.level === "HIGH") {
+                return "High priority review recommended. Start with HIGH alerts and document the outcome.";
+            }
+
+            if (risk.level === "MEDIUM") {
+                return "Suspicious activity found. Review the alert details and compare with expected behavior.";
+            }
+
+            return "Low risk result. Keep the report for documentation.";
+        }
+
+        function hasAlert(alerts, alertType) {
+            return alerts.some(function(alert) {
+                return alert.type === alertType;
+            });
+        }
+
+        function buildRemediationSuggestions(alerts, risk) {
+            const actions = [];
+
+            if (alerts.length === 0) {
+                actions.push({
+                    title: "Save as clean baseline",
+                    why: "No suspicious threshold was reached, so this log can be used as a normal comparison sample.",
+                    note: "Do not assume the whole environment is safe from one clean log."
+                });
+            }
+
+            if (hasAlert(alerts, "FAILED_LOGIN")) {
+                actions.push({
+                    title: "Review affected user accounts",
+                    why: "Repeated failed logins may indicate brute force, credential stuffing, or a user repeatedly typing the wrong password.",
+                    note: "Check with the user or identity team before resetting anything."
+                });
+                actions.push({
+                    title: "Consider password reset and MFA review",
+                    why: "If the failures are suspicious, resetting the password and checking MFA reduces the chance of account misuse.",
+                    note: "In a real company, follow the approved account security process."
+                });
+            }
+
+            if (hasAlert(alerts, "PORT_SCAN")) {
+                actions.push({
+                    title: "Validate the scanning source",
+                    why: "Port scans can be malicious, but they can also come from approved vulnerability scanners.",
+                    note: "Confirm ownership before blocking an IP."
+                });
+                actions.push({
+                    title: "Prepare firewall block request",
+                    why: "If the source is unknown and suspicious, blocking can reduce reconnaissance against internal systems.",
+                    note: "Use change control or supervisor approval before changing production firewall rules."
+                });
+            }
+
+            if (hasAlert(alerts, "ACCOUNT_LOCKED")) {
+                actions.push({
+                    title: "Check account lockout impact",
+                    why: "Lockouts can affect availability and may also show an active password attack.",
+                    note: "Help the user regain access only after confirming identity."
+                });
+            }
+
+            if (hasAlert(alerts, "SUCCESS_AFTER_FAILURE") || hasAlert(alerts, "SUCCESS_FROM_NEW_IP")) {
+                actions.push({
+                    title: "Validate suspicious successful login",
+                    why: "A successful login after failures or from a new IP may indicate possible account takeover.",
+                    note: "Contact the account owner and review MFA, VPN, device, and location context."
+                });
+                actions.push({
+                    title: "Open or escalate an incident case",
+                    why: "Account takeover signs should be documented with evidence, timeline, and affected user details.",
+                    note: "Escalate based on company severity rules."
+                });
+            }
+
+            if (risk.level === "HIGH") {
+                actions.unshift({
+                    title: "Treat as high priority",
+                    why: "High risk findings need faster review and clearer documentation.",
+                    note: "Start with the highest severity alert and preserve evidence."
+                });
+            }
+
+            return actions;
+        }
+
+        function renderNextActions(alerts, risk) {
+            const container = document.querySelector("#next-actions");
+            const actions = buildRemediationSuggestions(alerts, risk);
+
+            container.innerHTML = actions.map(function(action) {
+                return "<div class=\"action-item\">"
+                    + "<div class=\"action-title\">" + escapeHtml(action.title) + "</div>"
+                    + "<div>" + escapeHtml(action.why) + "</div>"
+                    + "<div class=\"action-note\">" + escapeHtml(action.note) + "</div>"
+                    + "</div>";
+            }).join("");
+        }
+
+        function buildReportText(result, risk) {
+            const lines = [];
+            lines.push("Local Log Analyzer Browser App Report");
+            lines.push("Total lines: " + result.lines.length);
+            lines.push("Normalized events: " + result.events.length);
+            lines.push("Total alerts: " + result.alerts.length);
+            lines.push("Correlations: " + currentCorrelations.length);
+            lines.push("Risk score: " + risk.score);
+            lines.push("Risk level: " + risk.level);
+            lines.push("");
+            lines.push("IOC summary:");
+            lines.push("Users: " + formatIocList(uniqueValues(result.events, "user")));
+            lines.push("Source IPs: " + formatIocList(uniqueValues(result.events, "sourceIp").map(function(ip) {
+                return ip + " (" + classifyIp(ip) + ")";
+            })));
+            lines.push("Target IPs: " + formatIocList(uniqueValues(result.events, "targetIp")));
+            lines.push("Event types: " + formatIocList(uniqueValues(result.events, "eventType")));
+            lines.push("");
+            lines.push("Timeline highlights:");
+
+            if (result.events.length === 0) {
+                lines.push("No events found.");
+            } else {
+                result.events.slice(0, 8).forEach(function(event) {
+                    lines.push("- Line " + event.lineNumber + " [" + getEventSeverity(event) + "] " + explainTimelineEvent(event));
+                });
+            }
+
+            lines.push("");
+            lines.push("Analyst questions:");
+
+            if (result.events.length === 0) {
+                lines.push("No questions generated.");
+            } else {
+                buildAnalystQuestions(result, risk).forEach(function(item) {
+                    lines.push("- " + item.question + " " + item.why);
+                });
+            }
+
+            lines.push("");
+            lines.push("Remediation suggestions:");
+            buildRemediationSuggestions(result.alerts, risk).forEach(function(action) {
+                lines.push("- " + action.title + ": " + action.why + " Safe note: " + action.note);
+            });
+
+            lines.push("");
+            lines.push("Alerts:");
+
+            if (result.alerts.length === 0) {
+                lines.push("No alerts found.");
+            } else {
+                result.alerts.forEach(function(alert) {
+                    lines.push(alert.severity + " " + alert.type + " line(s) " + alert.source + ": " + alert.details);
+                });
+            }
+
+            lines.push("");
+            lines.push("Correlations:");
+
+            if (currentCorrelations.length === 0) {
+                lines.push("No correlations found.");
+            } else {
+                currentCorrelations.forEach(function(item) {
+                    lines.push("- " + item.severity + " " + item.rule + ": " + item.evidence);
+                });
+            }
+
+            return lines.join("\n");
+        }
+
+        function analyzeCurrentLog() {
+            const logText = document.querySelector("#log-input").value;
+            const failedLimit = Number(document.querySelector("#failed-limit").value) || 3;
+            const result = analyzeLogText(logText, failedLimit);
+            setActiveScenario("");
+            renderResults(result);
+        }
+
+        function loadScenario(name) {
+            document.querySelector("#log-input").value = scenarios[name];
+            setActiveScenario(name);
+            const failedLimit = Number(document.querySelector("#failed-limit").value) || 3;
+            renderResults(analyzeLogText(scenarios[name], failedLimit));
+        }
+
+        function clearLog() {
+            document.querySelector("#log-input").value = "";
+            setActiveScenario("");
+            renderResults(analyzeLogText("", 3));
+        }
+
+        function setActiveScenario(name) {
+            document.querySelectorAll("[data-scenario]").forEach(function(button) {
+                if (button.dataset.scenario === name) {
+                    button.classList.add("active");
+                } else {
+                    button.classList.remove("active");
+                }
+            });
+        }
+
+        function downloadReport() {
+            const reportText = lastReportText || "No report generated yet.";
+            downloadText("browser_report.txt", reportText);
+        }
+
+        function downloadText(fileName, text) {
+            const blob = new Blob([text], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        document.querySelector("#file-input").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function() {
+                document.querySelector("#log-input").value = reader.result;
+                analyzeCurrentLog();
+            };
+            reader.readAsText(file);
+        });
+
+        loadScenario("account_takeover");
+        renderCases();
+    </script>
+</body>
+</html>

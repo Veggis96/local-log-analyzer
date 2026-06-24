@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Local Log Analyzer Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            background: #f6f7f9;
+            color: #1f2937;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid #d0d5dd;
+            padding: 24px 32px;
+        }
+
+        main {
+            padding: 24px 32px;
+        }
+
+        h1, h2 {
+            margin: 0;
+        }
+
+        .subtitle {
+            margin-top: 8px;
+            color: #667085;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .label {
+            color: #667085;
+            font-size: 14px;
+        }
+
+        .value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .risk {
+            color: #b42318;
+        }
+
+        .risk-banner {
+            background: #b42318;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .risk-banner .title {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .risk-banner .level {
+            font-size: 32px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        section {
+            margin-top: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+        }
+
+        th, td {
+            border-bottom: 1px solid #eaecf0;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f2f4f7;
+            font-size: 14px;
+        }
+
+        .severity-badge {
+            border-radius: 999px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+        }
+
+        .severity-high {
+            background: #fee4e2;
+            color: #b42318;
+        }
+
+        .severity-medium {
+            background: #fef0c7;
+            color: #b54708;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .filter-button {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            color: #344054;
+            cursor: pointer;
+            padding: 8px 12px;
+        }
+
+        .filter-button:hover {
+            background: #f2f4f7;
+        }
+
+        .search-box {
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            color: #344054;
+            min-width: 220px;
+            padding: 8px 12px;
+        }
+
+        .visible-count {
+            color: #667085;
+            font-size: 14px;
+            margin: 8px 0 12px 0;
+        }
+
+        .details {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            padding: 16px;
+            line-height: 1.6;
+        }
+
+        .recommendations {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            padding: 16px;
+            line-height: 1.6;
+        }
+
+        .recommendations ul {
+            margin-bottom: 0;
+            margin-top: 8px;
+            padding-left: 20px;
+        }
+
+        .concept-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        .concept-card {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            padding: 16px;
+            line-height: 1.5;
+        }
+
+        .concept-card strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .learning-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        .learning-card {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            padding: 16px;
+            line-height: 1.5;
+        }
+
+        .learning-card strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .crypto-example {
+            background: #f9fafb;
+            border: 1px solid #eaecf0;
+            border-radius: 8px;
+            font-family: Consolas, monospace;
+            margin-top: 12px;
+            padding: 12px;
+            word-break: break-word;
+        }
+
+        .analyst-notes {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            padding: 16px;
+            line-height: 1.6;
+        }
+
+        .analyst-notes ul {
+            margin-bottom: 0;
+            margin-top: 8px;
+            padding-left: 20px;
+        }
+
+        .action-panel {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            padding: 16px;
+            line-height: 1.6;
+        }
+
+        .case-status-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .status-button.active {
+            background: #344054;
+            color: #ffffff;
+        }
+
+        .case-note {
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            color: #344054;
+            font-family: Arial, sans-serif;
+            min-height: 90px;
+            padding: 12px;
+            width: 100%;
+        }
+
+        .saved-message {
+            color: #667085;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .action-item {
+            align-items: flex-start;
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .action-item input {
+            margin-top: 5px;
+        }
+
+        .countermeasure-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .activity-log {
+            background: #f9fafb;
+            border: 1px solid #eaecf0;
+            border-radius: 8px;
+            margin-top: 12px;
+            min-height: 48px;
+            padding: 12px;
+        }
+
+        .activity-log ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .incident-summary {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            padding: 16px;
+            line-height: 1.6;
+        }
+
+        .response-note {
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            color: #344054;
+            font-family: Consolas, monospace;
+            min-height: 150px;
+            padding: 12px;
+            width: 100%;
+        }
+
+        .bars {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .bar-row {
+            display: grid;
+            grid-template-columns: 180px 1fr 40px;
+            gap: 12px;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        .bar-track {
+            background: #eaecf0;
+            height: 14px;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            background: #344054;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Local Log Analyzer Dashboard</h1>
+        <div class="subtitle">suspicious_log.txt</div>
+    </header>
+    <main>
+        <div class="risk-banner">
+            <div class="title">Overall risk</div>
+            <div class="level">HIGH</div>
+        </div>
+
+        <div class="grid">
+            <div class="metric"><div class="label">Risk level</div><div class="value risk">HIGH</div></div>
+            <div class="metric"><div class="label">Risk score</div><div class="value">22</div></div>
+            <div class="metric"><div class="label">Total alerts</div><div class="value">9</div></div>
+            <div class="metric"><div class="label">Minimum severity</div><div class="value">LOW</div></div>
+            <div class="metric"><div class="label">Files analyzed</div><div class="value">1</div></div>
+            <div class="metric"><div class="label">Lines analyzed</div><div class="value">14</div></div>
+            <div class="metric"><div class="label">Most suspicious user</div><div class="value">backup</div><div class="label">3 failed logins</div></div>
+            <div class="metric"><div class="label">Most active source IP</div><div class="value">198.51.100.23</div><div class="label">3 port scan events</div></div>
+        </div>
+
+        <section>
+            <h2>Timeline</h2>
+            <div class="details">
+                First timestamp: 2026-06-13 09:00:01<br>
+                Last timestamp: 2026-06-13 09:25:30
+            </div>
+        </section>
+
+        <section>
+            <h2>Recommendations</h2>
+            <div class="recommendations">
+                <ul>
+                    <li>Review the user account with repeated failed logins.</li>
+<li>Check the source IP address from the port scan event.</li>
+<li>Review locked accounts and confirm whether the lockout was expected.</li>
+<li>Review successful logins that happened after repeated failures.</li>
+<li>Review successful logins from new IP addresses after repeated failures.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>Severity Guide</h2>
+            <div class="details">
+                <strong>HIGH:</strong> Review first. These alerts may need account or incident follow-up.<br>
+                <strong>MEDIUM:</strong> Review after HIGH alerts. These events may show suspicious behavior.<br>
+                <strong>LOW:</strong> Informational or clean result. No alert action is needed by default.
+            </div>
+        </section>
+
+        <section>
+            <h2>Cybersecurity Concepts Covered</h2>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <strong>OWASP Top 10 awareness</strong>
+                    This project is not a web vulnerability scanner, but login failures and suspicious access relate to application security topics like authentication, access control, and security logging.
+                </div>
+                <div class="concept-card">
+                    <strong>Firewall thinking</strong>
+                    Port scan alerts help you think like a defender: identify source IPs, review whether traffic is expected, and decide what should be allowed or blocked.
+                </div>
+                <div class="concept-card">
+                    <strong>Cryptography basics</strong>
+                    The project does not encrypt data yet, but it highlights why passwords, successful logins, and sensitive logs should be protected with strong hashing, encryption, and access control.
+                </div>
+                <div class="concept-card">
+                    <strong>CIA triad</strong>
+                    Failed logins affect confidentiality, account lockouts affect availability, and log review helps protect integrity by checking whether activity looks trustworthy.
+                </div>
+                <div class="concept-card">
+                    <strong>MITRE ATT&CK mapping</strong>
+                    Alerts are mapped to beginner-friendly ATT&CK techniques so the findings connect to common security language used by analysts.
+                </div>
+                <div class="concept-card">
+                    <strong>Incident response basics</strong>
+                    The checklist, case status, notes, and countermeasure log show how an analyst can triage, document, and follow up on suspicious activity.
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Learning Mode</h2>
+            <div class="learning-grid">
+                <div class="learning-card">
+                    <strong>FAILED_LOGIN</strong>
+                    What happened: one user failed to log in several times.<br>
+                    Why it matters: this can be password guessing or a user who forgot a password.<br>
+                    Concept: OWASP authentication and MITRE brute force.<br>
+                    Analyst check: confirm whether the user and source IP are expected.
+                </div>
+                <div class="learning-card">
+                    <strong>PORT_SCAN</strong>
+                    What happened: a source IP checked network targets for open ports.<br>
+                    Why it matters: scanning can happen before an attacker tries a service.<br>
+                    Concept: firewalls, network discovery, attack surface, and internal vs external IP review.<br>
+                    Analyst check: decide whether the source is internal, expected, allowed, reviewed, or blocked.
+                </div>
+                <div class="learning-card">
+                    <strong>ACCOUNT_LOCKED</strong>
+                    What happened: an account was locked after suspicious login behavior.<br>
+                    Why it matters: this can protect confidentiality but may affect availability.<br>
+                    Concept: CIA triad and account security controls.<br>
+                    Analyst check: confirm whether the lockout was expected.
+                </div>
+                <div class="learning-card">
+                    <strong>SUCCESS_AFTER_FAILURE</strong>
+                    What happened: a login succeeded after repeated failures.<br>
+                    Why it matters: the password may have been guessed or the account may need review.<br>
+                    Concept: valid accounts and access control.<br>
+                    Analyst check: compare the login time and IP address with normal behavior.
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>OWASP Top 10 Learning Map</h2>
+            <table>
+                <thead>
+                    <tr><th>Alert type</th><th>OWASP concept</th><th>Why it connects</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>FAILED_LOGIN</td><td>Identification and Authentication Failures</td><td>Repeated failed logins can show weak authentication or brute-force attempts.</td></tr>
+                    <tr><td>SUCCESS_AFTER_FAILURE</td><td>Identification and Authentication Failures</td><td>A successful login after failures may suggest a guessed password.</td></tr>
+                    <tr><td>SUCCESS_FROM_NEW_IP</td><td>Broken Access Control and Authentication Failures</td><td>An account used from an unusual source may need access review.</td></tr>
+                    <tr><td>PORT_SCAN</td><td>Security Misconfiguration</td><td>Exposed services and open ports increase the attack surface.</td></tr>
+                    <tr><td>ACCOUNT_LOCKED</td><td>Security Logging and Monitoring Failures</td><td>Account lockouts should be logged, reviewed, and followed up.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Security Controls Matrix</h2>
+            <table>
+                <thead>
+                    <tr><th>Control type</th><th>Example control</th><th>How this project shows it</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Preventive</td><td>Strong passwords, MFA, firewall rules, account lockout policies</td><td>The dashboard suggests checks before allowing or blocking traffic.</td></tr>
+                    <tr><td>Detective</td><td>Log monitoring, alert rules, risk scoring, MITRE mapping</td><td>The analyzer detects suspicious events and explains what they may mean.</td></tr>
+                    <tr><td>Corrective</td><td>Password reset, account review, incident notes, firewall change request</td><td>The checklist and countermeasure planner help document safe response steps.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Mini Glossary</h2>
+            <div class="learning-grid">
+                <div class="learning-card"><strong>Brute force</strong>Trying many passwords or login attempts to get access.</div>
+                <div class="learning-card"><strong>Port scan</strong>Checking a system or network to find open services.</div>
+                <div class="learning-card"><strong>Firewall</strong>A control that allows or blocks traffic based on rules.</div>
+                <div class="learning-card"><strong>Hashing</strong>Turning data into a one-way fingerprint, often used for password storage.</div>
+                <div class="learning-card"><strong>Encryption</strong>Protecting data so only someone with the right key can read it.</div>
+                <div class="learning-card"><strong>Incident response</strong>The process of identifying, documenting, containing, and learning from security events.</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Portfolio Summary</h2>
+            <div class="details">
+                This project demonstrates beginner Python, log parsing, alert rules, risk scoring, CSV and JSON output, dashboard reporting, MITRE ATT&CK mapping, OWASP awareness, firewall thinking, cryptography basics, and incident response documentation.
+            </div>
+        </section>
+
+        <section>
+            <h2>Demo Scenarios</h2>
+            <table>
+                <thead>
+                    <tr><th>Scenario file</th><th>What it demonstrates</th><th>Expected result</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>scenario_brute_force.txt</td><td>Repeated failed logins against one account</td><td>FAILED_LOGIN and ACCOUNT_LOCKED alerts</td></tr>
+                    <tr><td>scenario_port_scan.txt</td><td>One source IP scanning several internal targets</td><td>PORT_SCAN alerts and firewall review item</td></tr>
+                    <tr><td>scenario_account_takeover.txt</td><td>Failed logins followed by success from a new IP</td><td>FAILED_LOGIN, SUCCESS_AFTER_FAILURE, and SUCCESS_FROM_NEW_IP alerts</td></tr>
+                    <tr><td>scenario_clean_baseline.txt</td><td>Normal activity with no suspicious threshold reached</td><td>No alerts found</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Incident Response Summary</h2>
+            <div class="incident-summary">
+                <strong>Priority:</strong> High priority review<br>
+                High priority review recommended because this log contains 9 alert(s) with a HIGH risk level.
+                <ul>
+                    <li>Risk score: 22</li>
+<li>Failed login alerts: 2</li>
+<li>Port scan alerts: 3</li>
+<li>Account locked alerts: 1</li>
+<li>Success after failure alerts: 2</li>
+<li>Success from new IP alerts: 1</li>
+<li>Most suspicious user: backup (3 failed logins)</li>
+<li>Most active source IP: 198.51.100.23 (3 port scan events)</li>
+                </ul>
+                <textarea class="response-note" id="incident-response-note" readonly>Incident response note
+Priority: High priority review
+Risk level: HIGH
+Total alerts: 9
+Top user: backup
+Top source IP: 198.51.100.23
+Suggested action: Review HIGH alerts, validate affected users and source IPs, and document the outcome.</textarea>
+                <button class="filter-button" onclick="copyIncidentResponseNote()">Copy response note</button>
+            </div>
+        </section>
+
+        <section>
+            <h2>Analyst Notes</h2>
+            <div class="analyst-notes">
+                <ul>
+                    <li>Start with HIGH alerts before MEDIUM alerts.</li>
+                    <li>Check whether the usernames and source IPs are expected.</li>
+                    <li>Compare suspicious timestamps with normal user activity.</li>
+                    <li>Record what you reviewed and what action you took.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>High Threat Actions</h2>
+            <div class="action-panel">
+                <label class="action-item"><input type="checkbox" data-action-id="review-high-alerts"> Review all HIGH alerts first</label>
+                <label class="action-item"><input type="checkbox" data-action-id="verify-users"> Check whether affected usernames are expected</label>
+                <label class="action-item"><input type="checkbox" data-action-id="verify-source-ips"> Check whether source IP addresses are expected</label>
+                <label class="action-item"><input type="checkbox" data-action-id="document-findings"> Document what you reviewed and what action you would take</label>
+                <button class="filter-button" onclick="resetActionChecklist()">Reset checklist</button>
+            </div>
+        </section>
+
+        <section>
+            <h2>Case Status</h2>
+            <div class="action-panel">
+                <div class="details">Use this to practice tracking an investigation. It only saves in this browser.</div>
+                <div class="case-status-options">
+                    <button class="filter-button status-button" data-status="Open" onclick="setCaseStatus('Open')">Open</button>
+                    <button class="filter-button status-button" data-status="Investigating" onclick="setCaseStatus('Investigating')">Investigating</button>
+                    <button class="filter-button status-button" data-status="Closed" onclick="setCaseStatus('Closed')">Closed</button>
+                </div>
+                <div class="details">
+                    Current status: <strong id="case-status-value">Open</strong>
+                </div>
+                <textarea class="case-note" id="case-note" placeholder="Write a short investigation note"></textarea>
+                <button class="filter-button" onclick="saveCaseNote()">Save case note</button>
+                <div class="saved-message" id="case-note-message"></div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Firewall Review</h2>
+            <div class="details">
+                This is a safe practice view. It does not change firewall settings. It helps you decide which source IPs should be reviewed before a real allow or block decision.
+            </div>
+            <table>
+                <thead>
+                    <tr><th>Source IP</th><th>IP type</th><th>Port scan events</th><th>Practice decision</th><th>Next check</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>198.51.100.23</td><td>External test/example</td><td>3</td><td>Block request</td><td>Confirm whether this source IP is expected before changing any firewall rule.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Cryptography Learning Note</h2>
+            <div class="details">
+                Logs should not contain plaintext passwords. Real systems should store passwords with strong password hashing and protect sensitive logs with access control and encryption.
+                <div class="crypto-example">
+                    Plaintext example: password123<br>
+                    Safer idea: store a salted password hash, not the original password<br>
+                    Log safety idea: keep only the event, user, time, and source IP needed for investigation
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Countermeasure Planner</h2>
+            <div class="action-panel">
+                <div class="details">These buttons simulate response actions for practice. They do not change your computer, block users, or block IP addresses.</div>
+                <div class="countermeasure-buttons">
+                    <button class="filter-button" onclick="recordCountermeasure('Simulated account review for HIGH login alerts')">Simulate account review</button>
+                    <button class="filter-button" onclick="recordCountermeasure('Simulated source IP block request for port scan activity')">Simulate IP block request</button>
+                    <button class="filter-button" onclick="recordCountermeasure('Simulated password reset recommendation for affected user')">Simulate password reset recommendation</button>
+                    <button class="filter-button" onclick="recordCountermeasure('Created incident note for review')">Create incident note</button>
+                    <button class="filter-button" onclick="clearCountermeasureLog()">Clear action log</button>
+                </div>
+                <div class="activity-log">
+                    <strong>Action log</strong>
+                    <ul id="countermeasure-log"></ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>User Activity</h2>
+            <table>
+                <thead>
+                    <tr><th>User</th><th>Failed logins</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>backup</td><td>3</td></tr>
+<tr><td>maria</td><td>3</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Network Activity</h2>
+            <table>
+                <thead>
+                    <tr><th>Source IP</th><th>Port scan events</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>198.51.100.23</td><td>3</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Alert Counts</h2>
+            <div class="grid">
+                <div class="metric"><div class="label">Failed login</div><div class="value">2</div></div>
+                <div class="metric"><div class="label">Port scan</div><div class="value">3</div></div>
+                <div class="metric"><div class="label">Account locked</div><div class="value">1</div></div>
+                <div class="metric"><div class="label">Success after failures</div><div class="value">2</div></div>
+                <div class="metric"><div class="label">Success from new IP</div><div class="value">1</div></div>
+            </div>
+            <div class="bars">
+                <div class="bar-row"><div>Failed login</div><div class="bar-track"><div class="bar-fill" style="width: 66%;"></div></div><div>2</div></div>
+                <div class="bar-row"><div>Port scan</div><div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div><div>3</div></div>
+                <div class="bar-row"><div>Account locked</div><div class="bar-track"><div class="bar-fill" style="width: 33%;"></div></div><div>1</div></div>
+                <div class="bar-row"><div>Success after failures</div><div class="bar-track"><div class="bar-fill" style="width: 66%;"></div></div><div>2</div></div>
+                <div class="bar-row"><div>Success from new IP</div><div class="bar-track"><div class="bar-fill" style="width: 33%;"></div></div><div>1</div></div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Alerts</h2>
+            <div class="filters">
+                <input class="search-box" type="search" placeholder="Search alerts" oninput="searchAlerts(this.value)">
+                <button class="filter-button" onclick="clearAlertFilters()">Clear</button>
+                <button class="filter-button" onclick="filterAlerts('ALL')">All</button>
+                <button class="filter-button" onclick="filterAlerts('HIGH')">HIGH</button>
+                <button class="filter-button" onclick="filterAlerts('MEDIUM')">MEDIUM</button>
+                <button class="filter-button" onclick="filterAlertType('FAILED_LOGIN')">Failed login</button>
+                <button class="filter-button" onclick="filterAlertType('PORT_SCAN')">Port scan</button>
+                <button class="filter-button" onclick="filterAlertType('ACCOUNT_LOCKED')">Account locked</button>
+                <button class="filter-button" onclick="filterAlertType('SUCCESS_AFTER_FAILURE')">Success after failures</button>
+                <button class="filter-button" onclick="filterAlertType('SUCCESS_FROM_NEW_IP')">Success from new IP</button>
+            </div>
+            <div class="visible-count" id="visible-alert-count">Showing 9 of 9 alerts</div>
+            <table>
+                <thead>
+                    <tr><th>Severity</th><th>Type</th><th>Source</th><th>Details</th><th>MITRE ATT&CK</th><th>Meaning</th></tr>
+                </thead>
+                <tbody>
+                    <tr data-severity="HIGH" data-alert-type="FAILED_LOGIN"><td><span class="severity-badge severity-high">HIGH</span></td><td>FAILED_LOGIN</td><td>suspicious_log.txt:9, suspicious_log.txt:10, suspicious_log.txt:11</td><td>backup has 3 failed login attempts</td><td>T1110 - Brute Force<br>Repeated failed logins can be a sign of password guessing.</td><td>A user failed to log in several times. This can mean password guessing or a forgotten password.</td></tr>
+<tr data-severity="HIGH" data-alert-type="FAILED_LOGIN"><td><span class="severity-badge severity-high">HIGH</span></td><td>FAILED_LOGIN</td><td>suspicious_log.txt:2, suspicious_log.txt:3, suspicious_log.txt:4</td><td>maria has 3 failed login attempts</td><td>T1110 - Brute Force<br>Repeated failed logins can be a sign of password guessing.</td><td>A user failed to log in several times. This can mean password guessing or a forgotten password.</td></tr>
+<tr data-severity="MEDIUM" data-alert-type="PORT_SCAN"><td><span class="severity-badge severity-medium">MEDIUM</span></td><td>PORT_SCAN</td><td>suspicious_log.txt:6</td><td>2026-06-13 09:10:11 PORT_SCAN source_ip=198.51.100.23 target_ip=192.168.1.10 source_ip_type=External test/example</td><td>T1046 - Network Service Discovery<br>Port scans can be used to discover exposed network services.</td><td>A source checked for open network ports. This can be an early step before an attack.</td></tr>
+<tr data-severity="MEDIUM" data-alert-type="PORT_SCAN"><td><span class="severity-badge severity-medium">MEDIUM</span></td><td>PORT_SCAN</td><td>suspicious_log.txt:7</td><td>2026-06-13 09:10:12 PORT_SCAN source_ip=198.51.100.23 target_ip=192.168.1.11 source_ip_type=External test/example</td><td>T1046 - Network Service Discovery<br>Port scans can be used to discover exposed network services.</td><td>A source checked for open network ports. This can be an early step before an attack.</td></tr>
+<tr data-severity="MEDIUM" data-alert-type="PORT_SCAN"><td><span class="severity-badge severity-medium">MEDIUM</span></td><td>PORT_SCAN</td><td>suspicious_log.txt:8</td><td>2026-06-13 09:10:13 PORT_SCAN source_ip=198.51.100.23 target_ip=192.168.1.12 source_ip_type=External test/example</td><td>T1046 - Network Service Discovery<br>Port scans can be used to discover exposed network services.</td><td>A source checked for open network ports. This can be an early step before an attack.</td></tr>
+<tr data-severity="HIGH" data-alert-type="ACCOUNT_LOCKED"><td><span class="severity-badge severity-high">HIGH</span></td><td>ACCOUNT_LOCKED</td><td>suspicious_log.txt:12</td><td>2026-06-13 09:16:05 ACCOUNT_LOCKED user=backup ip=203.0.113.55</td><td>T1110 - Brute Force<br>Account lockouts can happen after repeated brute-force attempts.</td><td>An account was locked. This often happens after too many failed login attempts.</td></tr>
+<tr data-severity="MEDIUM" data-alert-type="SUCCESS_AFTER_FAILURE"><td><span class="severity-badge severity-medium">MEDIUM</span></td><td>SUCCESS_AFTER_FAILURE</td><td>suspicious_log.txt:5</td><td>2026-06-13 09:04:02 LOGIN_SUCCESS user=maria ip=203.0.113.10 after 3 failed login attempts</td><td>T1078 - Valid Accounts<br>A successful login after repeated failures can suggest an account may have been accessed.</td><td>A login succeeded after repeated failures. This should be checked because the password may have been guessed.</td></tr>
+<tr data-severity="MEDIUM" data-alert-type="SUCCESS_AFTER_FAILURE"><td><span class="severity-badge severity-medium">MEDIUM</span></td><td>SUCCESS_AFTER_FAILURE</td><td>suspicious_log.txt:14</td><td>2026-06-13 09:25:30 LOGIN_SUCCESS user=maria ip=198.51.100.77 after 3 failed login attempts</td><td>T1078 - Valid Accounts<br>A successful login after repeated failures can suggest an account may have been accessed.</td><td>A login succeeded after repeated failures. This should be checked because the password may have been guessed.</td></tr>
+<tr data-severity="HIGH" data-alert-type="SUCCESS_FROM_NEW_IP"><td><span class="severity-badge severity-high">HIGH</span></td><td>SUCCESS_FROM_NEW_IP</td><td>suspicious_log.txt:14</td><td>2026-06-13 09:25:30 LOGIN_SUCCESS user=maria ip=198.51.100.77 after failures from IP(s): 203.0.113.10 success_ip_type=External test/example</td><td>T1078 - Valid Accounts<br>A successful login from a new IP can suggest an account may have been accessed from an unusual location.</td><td>A login succeeded from a new IP address after repeated failures. This can be more suspicious than a normal successful login.</td></tr>
+                    <tr id="no-matching-alerts" style="display: none;"><td colspan="6">No matching alerts.</td></tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <script>
+        function filterAlerts(severity) {
+            const rows = document.querySelectorAll('[data-severity]');
+
+            rows.forEach(function(row) {
+                if (severity === 'ALL' || row.dataset.severity === severity) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            updateNoMatchingAlerts();
+        }
+
+        function filterAlertType(alertType) {
+            const rows = document.querySelectorAll('[data-alert-type]');
+
+            rows.forEach(function(row) {
+                if (row.dataset.alertType === alertType) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            updateNoMatchingAlerts();
+        }
+
+        function searchAlerts(searchText) {
+            const rows = document.querySelectorAll('[data-alert-type]');
+            const normalizedSearch = searchText.toLowerCase();
+
+            rows.forEach(function(row) {
+                if (row.innerText.toLowerCase().includes(normalizedSearch)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            updateNoMatchingAlerts();
+        }
+
+        function clearAlertFilters() {
+            const searchBox = document.querySelector('.search-box');
+            const rows = document.querySelectorAll('[data-alert-type]');
+
+            if (searchBox) {
+                searchBox.value = '';
+            }
+
+            rows.forEach(function(row) {
+                row.style.display = '';
+            });
+
+            updateNoMatchingAlerts();
+        }
+
+        function updateNoMatchingAlerts() {
+            const rows = document.querySelectorAll('[data-alert-type]');
+            const noMatchingRow = document.querySelector('#no-matching-alerts');
+            const visibleCount = document.querySelector('#visible-alert-count');
+            let visibleRows = 0;
+
+            rows.forEach(function(row) {
+                if (row.style.display !== 'none') {
+                    visibleRows = visibleRows + 1;
+                }
+            });
+
+            if (noMatchingRow) {
+                if (visibleRows === 0 && rows.length > 0) {
+                    noMatchingRow.style.display = '';
+                } else {
+                    noMatchingRow.style.display = 'none';
+                }
+            }
+
+            if (visibleCount) {
+                visibleCount.innerText = 'Showing ' + visibleRows + ' of ' + rows.length + ' alerts';
+            }
+        }
+
+        function loadActionChecklist() {
+            const actionItems = document.querySelectorAll('[data-action-id]');
+
+            actionItems.forEach(function(item) {
+                const savedValue = localStorage.getItem('log-analyzer-action-' + item.dataset.actionId);
+                item.checked = savedValue === 'done';
+
+                item.addEventListener('change', function() {
+                    if (item.checked) {
+                        localStorage.setItem('log-analyzer-action-' + item.dataset.actionId, 'done');
+                    } else {
+                        localStorage.removeItem('log-analyzer-action-' + item.dataset.actionId);
+                    }
+                });
+            });
+        }
+
+        function resetActionChecklist() {
+            const actionItems = document.querySelectorAll('[data-action-id]');
+
+            actionItems.forEach(function(item) {
+                item.checked = false;
+                localStorage.removeItem('log-analyzer-action-' + item.dataset.actionId);
+            });
+        }
+
+        function getCountermeasureLog() {
+            const savedLog = localStorage.getItem('log-analyzer-countermeasure-log');
+
+            if (savedLog) {
+                return JSON.parse(savedLog);
+            }
+
+            return [];
+        }
+
+        function saveCountermeasureLog(actions) {
+            localStorage.setItem('log-analyzer-countermeasure-log', JSON.stringify(actions));
+        }
+
+        function renderCountermeasureLog() {
+            const logList = document.querySelector('#countermeasure-log');
+            const actions = getCountermeasureLog();
+
+            if (!logList) {
+                return;
+            }
+
+            if (actions.length === 0) {
+                logList.innerHTML = '<li>No countermeasures recorded yet.</li>';
+                return;
+            }
+
+            logList.innerHTML = actions.map(function(action) {
+                return '<li>' + action + '</li>';
+            }).join('');
+        }
+
+        function recordCountermeasure(actionText) {
+            const actions = getCountermeasureLog();
+            const timestamp = new Date().toLocaleString();
+
+            actions.unshift(timestamp + ': ' + actionText);
+            saveCountermeasureLog(actions.slice(0, 10));
+            renderCountermeasureLog();
+        }
+
+        function clearCountermeasureLog() {
+            localStorage.removeItem('log-analyzer-countermeasure-log');
+            renderCountermeasureLog();
+        }
+
+        function loadCaseStatus() {
+            const savedStatus = localStorage.getItem('log-analyzer-case-status') || 'Open';
+            const savedNote = localStorage.getItem('log-analyzer-case-note') || '';
+            const noteBox = document.querySelector('#case-note');
+
+            setCaseStatus(savedStatus, false);
+
+            if (noteBox) {
+                noteBox.value = savedNote;
+            }
+        }
+
+        function setCaseStatus(status, shouldRecord) {
+            const statusValue = document.querySelector('#case-status-value');
+            const statusButtons = document.querySelectorAll('[data-status]');
+
+            localStorage.setItem('log-analyzer-case-status', status);
+
+            if (statusValue) {
+                statusValue.innerText = status;
+            }
+
+            statusButtons.forEach(function(button) {
+                if (button.dataset.status === status) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+
+            if (shouldRecord !== false) {
+                recordCountermeasure('Set case status to ' + status);
+            }
+        }
+
+        function saveCaseNote() {
+            const noteBox = document.querySelector('#case-note');
+            const message = document.querySelector('#case-note-message');
+
+            if (!noteBox) {
+                return;
+            }
+
+            localStorage.setItem('log-analyzer-case-note', noteBox.value);
+
+            if (message) {
+                message.innerText = 'Case note saved in this browser.';
+            }
+
+            recordCountermeasure('Saved case investigation note');
+        }
+
+        function copyIncidentResponseNote() {
+            const note = document.querySelector('#incident-response-note');
+
+            if (!note) {
+                return;
+            }
+
+            note.select();
+            document.execCommand('copy');
+            recordCountermeasure('Copied incident response note');
+        }
+
+        loadActionChecklist();
+        loadCaseStatus();
+        renderCountermeasureLog();
+    </script>
+</body>
+</html>

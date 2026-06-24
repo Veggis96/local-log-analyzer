@@ -1,0 +1,68 @@
+Local Log Analyzer Report
+Generated: example output
+Log file: suspicious_log.txt
+Total files analyzed: 1
+Total lines analyzed: 14
+First timestamp: 2026-06-13 09:00:01
+Last timestamp: 2026-06-13 09:25:30
+Minimum severity shown: LOW
+
+Failed login counts:
+backup: 3
+maria: 3
+
+Port scan source IPs:
+198.51.100.23: 3
+
+Alerts:
+HIGH ALERT [suspicious_log.txt:9, suspicious_log.txt:10, suspicious_log.txt:11]: backup has 3 failed login attempts
+HIGH ALERT [suspicious_log.txt:2, suspicious_log.txt:3, suspicious_log.txt:4]: maria has 3 failed login attempts
+MEDIUM ALERT [suspicious_log.txt:6]: Port scan detected: 2026-06-13 09:10:11 PORT_SCAN source_ip=198.51.100.23 target_ip=192.168.1.10
+MEDIUM ALERT [suspicious_log.txt:7]: Port scan detected: 2026-06-13 09:10:12 PORT_SCAN source_ip=198.51.100.23 target_ip=192.168.1.11
+MEDIUM ALERT [suspicious_log.txt:8]: Port scan detected: 2026-06-13 09:10:13 PORT_SCAN source_ip=198.51.100.23 target_ip=192.168.1.12
+HIGH ALERT [suspicious_log.txt:12]: Account locked: 2026-06-13 09:16:05 ACCOUNT_LOCKED user=backup ip=203.0.113.55
+MEDIUM ALERT [suspicious_log.txt:5]: Successful login after failures: 2026-06-13 09:04:02 LOGIN_SUCCESS user=maria ip=203.0.113.10 after 3 failed login attempts
+MEDIUM ALERT [suspicious_log.txt:14]: Successful login after failures: 2026-06-13 09:25:30 LOGIN_SUCCESS user=maria ip=198.51.100.77 after 3 failed login attempts
+HIGH ALERT [suspicious_log.txt:14]: Successful login from new IP after failures: 2026-06-13 09:25:30 LOGIN_SUCCESS user=maria ip=198.51.100.77 after failures from IP(s): 203.0.113.10
+
+Alert summary:
+Total alerts: 9
+Failed login alerts: 2
+Port scan alerts: 3
+Account locked alerts: 1
+Success after failure alerts: 2
+Success from new IP alerts: 1
+
+Risk summary:
+Risk score: 22
+Risk level: HIGH
+
+Incident response summary:
+Priority: High priority review
+High priority review recommended because this log contains 9 alert(s) with a HIGH risk level.
+
+Key findings:
+- Risk score: 22
+- Failed login alerts: 2
+- Port scan alerts: 3
+- Account locked alerts: 1
+- Success after failure alerts: 2
+- Success from new IP alerts: 1
+- Most suspicious user: backup (3 failed logins)
+- Most active source IP: 198.51.100.23 (3 port scan events)
+
+Response note:
+Incident response note
+Priority: High priority review
+Risk level: HIGH
+Total alerts: 9
+Top user: backup
+Top source IP: 198.51.100.23
+Suggested action: Review HIGH alerts, validate affected users and source IPs, and document the outcome.
+
+Recommendations:
+- Review the user account with repeated failed logins.
+- Check the source IP address from the port scan event.
+- Review locked accounts and confirm whether the lockout was expected.
+- Review successful logins that happened after repeated failures.
+- Review successful logins from new IP addresses after repeated failures.

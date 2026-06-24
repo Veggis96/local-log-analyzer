@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Local Log Analyzer Demo Summary</title>
+    <style>
+        body {
+            background: #f6f7f9;
+            color: #1f2937;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 32px;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #667085;
+            margin-bottom: 24px;
+        }
+
+        table {
+            background: #ffffff;
+            border: 1px solid #d0d5dd;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border-bottom: 1px solid #eaecf0;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f2f4f7;
+            font-size: 14px;
+        }
+
+        .risk-high {
+            color: #b42318;
+            font-weight: bold;
+        }
+
+        .risk-medium {
+            color: #b54708;
+            font-weight: bold;
+        }
+
+        .risk-low {
+            color: #027a48;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Local Log Analyzer Demo Summary</h1>
+    <div class="subtitle">Portfolio overview of all built-in training scenarios.</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Scenario</th>
+                <th>File</th>
+                <th>Alerts</th>
+                <th>Risk</th>
+                <th>Failed login</th>
+                <th>Port scan</th>
+                <th>Account locked</th>
+                <th>Success after failure</th>
+                <th>Success from new IP</th>
+                <th>Explanation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>account_takeover</td><td>scenario_account_takeover.txt</td><td>3</td><td class="risk-high">HIGH (8)</td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>Failed logins followed by success from a new IP. This is the strongest suspicious login scenario.</td></tr>
+            <tr><td>brute_force</td><td>scenario_brute_force.txt</td><td>2</td><td class="risk-high">HIGH (6)</td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td>Repeated failed logins and account lockout. This shows basic brute-force detection.</td></tr>
+            <tr><td>clean_baseline</td><td>scenario_clean_baseline.txt</td><td>0</td><td class="risk-low">LOW (0)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>Normal activity with no alert threshold reached. This shows what a clean result looks like.</td></tr>
+            <tr><td>port_scan</td><td>scenario_port_scan.txt</td><td>4</td><td class="risk-high">HIGH (8)</td><td>0</td><td>4</td><td>0</td><td>0</td><td>0</td><td>One source IP checks several targets. This shows network discovery and firewall review thinking.</td></tr>
+        </tbody>
+    </table>
+</body>
+</html>
