@@ -5,71 +5,347 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Local Log Analyzer</title>
     <style>
+        :root {
+            --bg: #f4f6f8;
+            --panel: #ffffff;
+            --border: #d0d5dd;
+            --border-soft: #eaecf0;
+            --text: #1f2937;
+            --muted: #667085;
+            --ink: #344054;
+            --accent: #0f766e;
+            --high: #b42318;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            background: #f4f6f8;
-            color: #1f2937;
+            background: var(--bg);
+            color: var(--text);
             font-family: Arial, sans-serif;
             margin: 0;
         }
 
-        main {
+        header {
+            background: var(--panel);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .wrap {
             margin: 0 auto;
-            max-width: 860px;
-            padding: 48px 24px;
+            max-width: 1120px;
+            padding: 0 24px;
+        }
+
+        .hero {
+            display: grid;
+            gap: 28px;
+            grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+            padding: 48px 0 34px 0;
+        }
+
+        .eyebrow {
+            color: var(--accent);
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
 
         h1 {
-            font-size: 36px;
-            margin: 0 0 10px 0;
+            font-size: 42px;
+            line-height: 1.1;
+            margin: 0 0 14px 0;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin: 0 0 14px 0;
+        }
+
+        h3 {
+            font-size: 17px;
+            margin: 0 0 8px 0;
         }
 
         p {
-            color: #667085;
+            color: var(--muted);
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        .lead {
             font-size: 18px;
-            line-height: 1.5;
-            margin: 0 0 24px 0;
+            max-width: 650px;
         }
 
-        .links {
-            display: grid;
-            gap: 12px;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 22px;
         }
 
-        a {
-            background: #ffffff;
-            border: 1px solid #d0d5dd;
+        a.button {
+            background: var(--ink);
+            border: 1px solid var(--ink);
             border-radius: 8px;
-            color: #344054;
-            display: block;
+            color: #ffffff;
+            display: inline-block;
             font-weight: 700;
-            padding: 18px;
+            padding: 11px 14px;
             text-decoration: none;
         }
 
-        a:hover {
-            background: #f2f4f7;
+        a.button.secondary {
+            background: var(--panel);
+            color: var(--ink);
         }
 
-        span {
-            color: #667085;
+        .hero-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .hero-card img {
+            display: block;
+            width: 100%;
+        }
+
+        .hero-card-body {
+            padding: 14px;
+        }
+
+        main {
+            padding: 28px 0 48px 0;
+        }
+
+        section {
+            margin-top: 26px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .metric {
+            color: var(--high);
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .screenshot-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        figure {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        figure img {
+            display: block;
+            width: 100%;
+        }
+
+        figcaption {
+            border-top: 1px solid var(--border-soft);
+            color: var(--muted);
+            font-size: 14px;
+            padding: 12px 14px;
+        }
+
+        ol, ul {
+            color: var(--muted);
+            line-height: 1.55;
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 7px;
+        }
+
+        .link-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .link-list a {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--ink);
+            display: block;
+            font-weight: 700;
+            padding: 14px;
+            text-decoration: none;
+        }
+
+        .link-list span {
+            color: var(--muted);
             display: block;
             font-size: 14px;
             font-weight: 400;
-            margin-top: 6px;
+            margin-top: 5px;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            padding: 22px 0;
+        }
+
+        @media (max-width: 820px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 34px;
+            }
         }
     </style>
 </head>
 <body>
+    <header>
+        <div class="wrap hero">
+            <div>
+                <div class="eyebrow">Cybersecurity Portfolio Project</div>
+                <h1>Local Log Analyzer</h1>
+                <p class="lead">A beginner-friendly Mini SIEM-style project that analyzes sample login and network logs, detects suspicious behavior, explains the evidence, and suggests safe remediation steps.</p>
+                <div class="actions">
+                    <a class="button" href="app.html">Open Live App</a>
+                    <a class="button secondary" href="dashboard.html">View Dashboard</a>
+                    <a class="button secondary" href="https://github.com/Veggis96/local-log-analyzer">View GitHub Repo</a>
+                </div>
+            </div>
+            <div class="hero-card">
+                <img src="screenshots/dashboard-overview.png" alt="Dashboard showing high risk log analysis results">
+                <div class="hero-card-body">
+                    <h3>Generated dashboard</h3>
+                    <p>Risk score, alert count, suspicious user, and active source IP from a sample investigation.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
     <main>
-        <h1>Local Log Analyzer</h1>
-        <p>A beginner cybersecurity portfolio project for analyzing login and network activity from sample log files.</p>
-        <div class="links">
-            <a href="app.html">Open Browser App<span>Interactive Mini SIEM-style log analyzer</span></a>
-            <a href="dashboard.html">View Dashboard<span>Generated HTML report from the Python analyzer</span></a>
-            <a href="demo_summary.html">View Demo Summary<span>Scenario overview for brute force, port scan, account takeover, and clean baseline logs</span></a>
-            <a href="https://github.com/Veggis96/local-log-analyzer">View Source on GitHub<span>Python code, tests, documentation, and sample logs</span></a>
+        <div class="wrap">
+            <section>
+                <div class="grid">
+                    <div class="card">
+                        <div class="metric">5</div>
+                        <h3>Detection Types</h3>
+                        <p>Failed logins, port scans, account lockouts, suspicious successful logins, and new source IP activity.</p>
+                    </div>
+                    <div class="card">
+                        <div class="metric">MITRE</div>
+                        <h3>Mapped Alerts</h3>
+                        <p>Alerts connect to concepts such as Brute Force, Valid Accounts, and Network Service Discovery.</p>
+                    </div>
+                    <div class="card">
+                        <div class="metric">IR</div>
+                        <h3>Response Workflow</h3>
+                        <p>IOC summary, timeline, analyst questions, evidence picker, saved cases, and remediation suggestions.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Screenshots</h2>
+                <div class="screenshot-grid">
+                    <figure>
+                        <img src="screenshots/app-full.png" alt="Browser app showing the account takeover demo scenario">
+                        <figcaption>Interactive browser app with a suspicious account takeover demo loaded.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="screenshots/dashboard-overview.png" alt="Generated dashboard high risk overview">
+                        <figcaption>Generated dashboard from the Python analyzer with risk scoring and alert summary.</figcaption>
+                    </figure>
+                </div>
+            </section>
+
+            <section>
+                <h2>How To Demo It</h2>
+                <div class="card">
+                    <ol>
+                        <li>Open the live app and click <strong>Account takeover</strong>.</li>
+                        <li>Review the risk score, IOC summary, and incident timeline.</li>
+                        <li>Use Analyst Questions to explain what should be investigated.</li>
+                        <li>Check Remediation Suggestions for safe response steps.</li>
+                        <li>Select evidence rows and create a saved case report.</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section>
+                <h2>Cybersecurity Concepts Shown</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Log Analysis</h3>
+                        <p>Parses simple text logs into normalized events with users, source IPs, target IPs, timestamps, and event types.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Detection Engineering</h3>
+                        <p>Uses small, readable rules for brute force, port scans, lockouts, and suspicious successful logins.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Incident Response</h3>
+                        <p>Turns alerts into case evidence, investigation questions, timeline context, and remediation guidance.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Security Fundamentals</h3>
+                        <p>Connects to OWASP awareness, firewall thinking, cryptography basics, the CIA triad, and MITRE ATT&CK.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Project Links</h2>
+                <div class="link-list">
+                    <a href="app.html">Browser App<span>Interactive local log analyzer that runs fully in the browser.</span></a>
+                    <a href="dashboard.html">Generated Dashboard<span>Static dashboard output created by the Python analyzer.</span></a>
+                    <a href="demo_summary.html">Demo Summary<span>Overview of all included demo scenarios.</span></a>
+                    <a href="https://github.com/Veggis96/local-log-analyzer">Source Code<span>Python, tests, documentation, sample logs, and screenshots.</span></a>
+                </div>
+            </section>
+
+            <section>
+                <h2>Limitations</h2>
+                <div class="card">
+                    <ul>
+                        <li>Uses fake sample logs for safe portfolio practice.</li>
+                        <li>Does not monitor a real network in real time.</li>
+                        <li>Does not replace a production SIEM, EDR, firewall, or identity platform.</li>
+                        <li>Remediation suggestions are educational and should follow company approval processes in real environments.</li>
+                    </ul>
+                </div>
+            </section>
         </div>
     </main>
+
+    <footer>
+        <div class="wrap">Built as a beginner cybersecurity portfolio project.</div>
+    </footer>
 </body>
 </html>
