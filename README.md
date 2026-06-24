@@ -323,6 +323,29 @@ This project demonstrates:
 - `screenshots/README.md` lists dashboard screenshots to capture for GitHub or a portfolio page.
 - `PORTFOLIO.md` gives a concise project pitch, demo flow, skills list, and interview explanation.
 
+## Limitations
+
+This is an educational portfolio project, not a production security platform.
+
+- Uses fake sample logs for safe practice.
+- Does not monitor a live network.
+- Does not collect real-time logs from endpoints, firewalls, or cloud services.
+- Does not replace a production SIEM, EDR, identity platform, or firewall.
+- Detection rules are simple and readable on purpose, so they may miss complex attacks.
+- Remediation suggestions are educational and should follow company approval processes in real environments.
+
+## Future Improvements
+
+Possible next improvements:
+
+- Support more log formats, such as Windows Event Log exports, Linux auth logs, and firewall CSV exports.
+- Add more MITRE ATT&CK mappings and explain which evidence supports each mapping.
+- Export saved browser cases as JSON as well as text.
+- Add severity and event-type filters to the browser app dashboard sections.
+- Add more demo scenarios, such as suspicious admin login, repeated lockouts, and mixed normal/suspicious traffic.
+- Add optional syslog-style ingestion later for a more realistic SIEM learning path.
+- Add automated browser tests for `app.html`.
+
 ## Project Status
 
 MVP complete.
