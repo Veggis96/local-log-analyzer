@@ -2,6 +2,10 @@
 
 A beginner Python cybersecurity project that reads a text log file and reports suspicious activity.
 
+## License
+
+This project is released under the [MIT License](LICENSE).
+
 ## Live Demo
 
 - [Open the project landing page](https://veggis96.github.io/local-log-analyzer/)
