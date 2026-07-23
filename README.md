@@ -25,20 +25,33 @@ Security teams often start investigations by reviewing logs for repeated failed 
 - Includes MITRE ATT&CK and OWASP learning notes for common alert types.
 - Includes interview notes, investigation guide, sample report, and portfolio documentation.
 
-## Screenshots
+## Hero Screenshot
 
-Current screenshots:
+### Dashboard
 
-![Browser Mini SIEM app showing the account takeover demo](screenshots/app-full.png)
+Overview of risk level, alert count, analyzed files, and suspicious indicators.
 
-![Generated dashboard showing high risk alert summary](screenshots/dashboard-overview.png)
+![Local Log Analyzer dashboard](docs/images/dashboard.png)
 
-Additional recommended screenshots to add under `docs/images/`:
+## Additional Screenshots
 
-- `scenario-selection.png`: browser app with demo scenarios visible.
-- `ioc-summary.png`: analyzed log with IOC summary and timeline.
-- `terminal-run.png`: terminal output from `python analyzer.py --scenario account_takeover`.
-- `generated-files.png`: folder or browser view showing generated report/dashboard files.
+### Incident List
+
+Mini SIEM-style browser view with demo scenarios, IOC summary, and incident timeline.
+
+![Incident list in the browser app](docs/images/incidents.png)
+
+### Detection Details
+
+Timeline and IOC details for suspicious login activity.
+
+![Detection details and IOC summary](docs/images/detection-details.png)
+
+### Report
+
+Risk summary and generated report-style output from the browser app.
+
+![Report summary](docs/images/report.png)
 
 ## Architecture
 
@@ -76,8 +89,8 @@ sample_log.txt                    Basic sample log
 suspicious_log.txt                Suspicious sample log
 scenario_*.txt                    Focused demo scenarios
 test_analyzer.py                  Test script
-screenshots/                      Current screenshots
-docs/images/                      Placeholder location for future screenshots
+screenshots/                      Original screenshots
+docs/images/                      README-optimized screenshots
 *.md                              Portfolio, rules, guide, changelog and interview docs
 ```
 

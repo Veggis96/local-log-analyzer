@@ -2,11 +2,11 @@
 
 Add real screenshots here when refreshing the portfolio presentation.
 
-Recommended images:
+Current README images:
 
-- `scenario-selection.png`: browser app with demo scenario buttons visible.
-- `ioc-summary.png`: browser app after analyzing the account takeover scenario.
-- `terminal-run.png`: terminal output from `python analyzer.py --scenario account_takeover`.
-- `generated-dashboard.png`: generated `dashboard.html` after a suspicious sample run.
+- `dashboard.png`: generated dashboard overview.
+- `incidents.png`: browser Mini SIEM view with log input, summary, IOC cards, and timeline.
+- `detection-details.png`: IOC summary and incident timeline detail.
+- `report.png`: report-style risk summary from the browser app.
 
 Do not include screenshots of real logs, customer systems, employer data, public IPs from real incidents, usernames, hostnames, or other sensitive details.
