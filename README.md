@@ -1,13 +1,19 @@
 # Local Log Analyzer
 
-Local Log Analyzer is a beginner-friendly cybersecurity project that analyzes local text logs, detects suspicious login and network activity, and produces analyst-style reports and dashboards. It includes both a Python command-line analyzer and a browser-only Mini SIEM-style demo app.
+Local Log Analyzer is a focused cybersecurity learning project for parsing local text logs, detecting common suspicious patterns, and generating analyst-style reports. It began as a small exploration of log analysis and later inspired the broader [AI-Cyberdefense](https://github.com/Veggis96/AI-Cyberdefense) project.
 
 The project is designed for portfolio and learning use, especially for IT support, security operations, and junior cybersecurity roles.
+
+## Project Evolution
+
+Local Log Analyzer began as a small project for learning log parsing, basic detection logic, risk scoring, and security reporting.
+
+After completing the initial version, I expanded the idea into [AI-Cyberdefense](https://github.com/Veggis96/AI-Cyberdefense), a larger SIEM/SOC-inspired project with normalized events, modular rule packs, incident workflows, MITRE ATT&CK context, SQLite persistence, and analyst-oriented dashboards.
 
 ## Live Demo
 
 - [Project landing page](https://veggis96.github.io/local-log-analyzer/)
-- [Browser Mini SIEM app](https://veggis96.github.io/local-log-analyzer/app.html)
+- [Browser-based learning demo](https://veggis96.github.io/local-log-analyzer/app.html)
 - [Generated dashboard](https://veggis96.github.io/local-log-analyzer/dashboard.html)
 
 ## Problem The Project Solves
@@ -20,7 +26,7 @@ Security teams often start investigations by reviewing logs for repeated failed 
 - Detects repeated failed logins, port scans, account lockouts, successful logins after failures, and successful logins from new IPs.
 - Calculates simple severity and risk levels.
 - Produces terminal output, `report.txt`, `alerts.csv`, `summary.json`, and `dashboard.html`.
-- Includes a browser-only Mini SIEM app for pasted or uploaded logs.
+- Includes a browser-only, small SIEM-style learning interface for pasted or uploaded logs.
 - Provides demo scenarios for brute force, port scan, account takeover, and clean baseline activity.
 - Includes MITRE ATT&CK and OWASP learning notes for common alert types.
 - Includes interview notes, investigation guide, sample report, and portfolio documentation.
@@ -37,7 +43,7 @@ Overview of risk level, alert count, analyzed files, and suspicious indicators.
 
 ### Incident List
 
-Mini SIEM-style browser view with demo scenarios, IOC summary, and incident timeline.
+Small SIEM-style browser view with demo scenarios, IOC summary, and incident timeline.
 
 ![Incident list in the browser app](docs/images/incidents.png)
 
@@ -81,7 +87,7 @@ flowchart LR
 
 ```text
 analyzer.py                       Python command-line analyzer
-app.html                          Browser-only Mini SIEM app
+app.html                          Browser-only learning demo
 index.html                        GitHub Pages landing page
 dashboard.html                    Generated demo dashboard
 demo_summary.html / .csv          Generated demo scenario summary
